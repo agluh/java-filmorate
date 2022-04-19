@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import java.util.Collection;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
@@ -11,13 +11,9 @@ import ru.yandex.practicum.filmorate.service.exception.FilmNotFoundException;
  * Provides service layer for films management.
  */
 @Service
+@RequiredArgsConstructor
 public class FilmService {
     private final FilmRepository filmRepository;
-
-    @Autowired
-    public FilmService(FilmRepository filmRepository) {
-        this.filmRepository = filmRepository;
-    }
 
     public Film createFilm(Film film) {
         filmRepository.save(film);

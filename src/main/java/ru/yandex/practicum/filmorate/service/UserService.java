@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import java.util.Collection;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
@@ -11,13 +11,9 @@ import ru.yandex.practicum.filmorate.service.exception.UserNotFoundException;
  * Provides service layer for users management.
  */
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-
-    @Autowired
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     /**
      * Creates a new user.

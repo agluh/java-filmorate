@@ -18,7 +18,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import ru.yandex.practicum.filmorate.controller.apierror.ApiError;
 import ru.yandex.practicum.filmorate.controller.exception.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.dao.exceptions.DaoException;
+import ru.yandex.practicum.filmorate.repository.exceptions.DaoException;
 
 /**
  * REST errors handler.

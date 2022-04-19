@@ -11,15 +11,15 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 @SpringBootTest
 class FilmorateApplicationTests {
 
-	@Autowired
-	private UserController userController;
+    @Autowired
+    private UserController userController;
 
-	@Autowired
-	private FilmController filmController;
+    @Autowired
+    private FilmController filmController;
 
-	@Test
-	void contextLoads() {
-		assertThat(userController).isNotNull();
-		assertThat(filmController).isNotNull();
-	}
+    @Test
+    void contextLoads() {
+        assertThat(userController).isNotNull();
+        assertThat(filmController).isNotNull();
+    }
 }

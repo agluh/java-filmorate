@@ -51,9 +51,9 @@ class UserControllerTest {
     }
 
     @Test
-    void whenCreateUserWithEmptyLogin_shouldReturnCode400() throws Exception {
+    void whenCreateUserWithNullLogin_shouldReturnCode400() throws Exception {
         String userInJson = "{"
-            + "\"login\":\"\","
+            + "\"login\":null,"
             + "\"name\":\"name\","
             + "\"email\":\"test@example.com\","
             + "\"birthday\":\"1988-08-20\""
@@ -71,7 +71,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.subErrors.[0].field",
                 is("login")))
             .andExpect(jsonPath("$.subErrors.[0].message",
-                is("must not be blank")));
+                is("must not be null")));
     }
 
     @Test
@@ -147,10 +147,10 @@ class UserControllerTest {
     }
 
     @Test
-    void whenUpdateUserWithEmptyLogin_shouldReturnCode400() throws Exception {
+    void whenUpdateUserWithNullLogin_shouldReturnCode400() throws Exception {
         String userInJson = "{"
             + "\"id\":1,"
-            + "\"login\":\"\","
+            + "\"login\":null,"
             + "\"name\":\"name\","
             + "\"email\":\"test@example.com\","
             + "\"birthday\":\"1988-08-20\""
@@ -168,7 +168,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.subErrors.[0].field",
                 is("login")))
             .andExpect(jsonPath("$.subErrors.[0].message",
-                is("must not be blank")));
+                is("must not be null")));
     }
 
     @Test

@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDate;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.PastOrPresent;
@@ -34,7 +33,7 @@ public class User {
     @Email(groups = {ValidationMarker.OnCreate.class, ValidationMarker.OnUpdate.class})
     private String email;
 
-    @NotBlank(groups = {ValidationMarker.OnCreate.class, ValidationMarker.OnUpdate.class})
+    @NotNull(groups = {ValidationMarker.OnCreate.class, ValidationMarker.OnUpdate.class})
     @Pattern(groups = {ValidationMarker.OnCreate.class, ValidationMarker.OnUpdate.class},
         regexp = "\\S+", message = "must not contain whitespace characters")
     private String login;

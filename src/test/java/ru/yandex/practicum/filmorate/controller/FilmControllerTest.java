@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.LikeService;
 
 @WebMvcTest(FilmController.class)
 class FilmControllerTest {
@@ -36,6 +37,9 @@ class FilmControllerTest {
 
     @MockBean
     private FilmService service;
+
+    @MockBean
+    private LikeService likeService;
 
     @Test
     void givenListOfFilms_shouldReturnCode200AndCorrectData() throws Exception {

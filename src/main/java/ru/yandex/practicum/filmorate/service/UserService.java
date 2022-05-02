@@ -47,4 +47,9 @@ public class UserService {
     public Collection<User> getAllUsers() {
         return userStorage.getAll();
     }
+
+    public User getUser(long userId) {
+        return userStorage.getUser(userId).orElseThrow(() ->
+            new UserNotFoundException(userId));
+    }
 }

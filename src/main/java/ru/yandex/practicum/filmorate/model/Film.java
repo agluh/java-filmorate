@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDate;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -34,6 +35,7 @@ public class Film {
     private String name;
 
     @Size(max = 200, groups = {ValidationMarker.OnCreate.class, ValidationMarker.OnUpdate.class})
+    @NotEmpty(groups = {ValidationMarker.OnCreate.class, ValidationMarker.OnUpdate.class})
     private String description;
 
     @NotNull(groups = {ValidationMarker.OnCreate.class, ValidationMarker.OnUpdate.class})

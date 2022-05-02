@@ -40,4 +40,9 @@ public class FilmService {
     public Collection<Film> getAllFilms() {
         return filmStorage.getAll();
     }
+
+    public Film getFilm(long filmId) {
+        return filmStorage.getFilm(filmId).orElseThrow(() ->
+            new FilmNotFoundException(filmId));
+    }
 }

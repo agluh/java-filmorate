@@ -7,7 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 /**
  * Repository for users.
  */
-public interface UserRepository {
+public interface UserStorage {
 
     Collection<User> getAll();
 

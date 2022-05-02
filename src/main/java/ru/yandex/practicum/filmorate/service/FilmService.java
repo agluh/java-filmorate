@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.storage.FilmRepository;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 /**
  * Provides service layer for films management.
@@ -13,10 +13,10 @@ import ru.yandex.practicum.filmorate.storage.FilmRepository;
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    private final FilmRepository filmRepository;
+    private final FilmStorage filmStorage;
 
     public Film createFilm(Film film) {
-        filmRepository.save(film);
+        filmStorage.save(film);
         return film;
     }
 
@@ -25,7 +25,7 @@ public class FilmService {
      */
     public Film updateFilm(Film film) {
         long id = film.getId();
-        Film existedFilm = filmRepository.getFilm(id).orElseThrow(() ->
+        Film existedFilm = filmStorage.getFilm(id).orElseThrow(() ->
             new FilmNotFoundException(id));
 
         existedFilm.setName(film.getName());
@@ -33,11 +33,11 @@ public class FilmService {
         existedFilm.setReleaseDate(film.getReleaseDate());
         existedFilm.setDuration(film.getDuration());
 
-        filmRepository.save(existedFilm);
+        filmStorage.save(existedFilm);
         return existedFilm;
     }
 
     public Collection<Film> getAllFilms() {
-        return filmRepository.getAll();
+        return filmStorage.getAll();
     }
 }

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.exception.UserNotFoundException;
-import ru.yandex.practicum.filmorate.storage.UserRepository;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 /**
  * Provides service layer for users management.
@@ -13,7 +13,7 @@ import ru.yandex.practicum.filmorate.storage.UserRepository;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
+    private final UserStorage userStorage;
 
     /**
      * Creates a new user.
@@ -23,7 +23,7 @@ public class UserService {
             user.setName(user.getLogin());
         }
 
-        userRepository.save(user);
+        userStorage.save(user);
         return user;
     }
 
@@ -32,7 +32,7 @@ public class UserService {
      */
     public User updateUser(User user) {
         long id = user.getId();
-        User existedUser = userRepository.getUser(id).orElseThrow(() ->
+        User existedUser = userStorage.getUser(id).orElseThrow(() ->
             new UserNotFoundException(id));
 
         existedUser.setName(user.getName());
@@ -40,11 +40,11 @@ public class UserService {
         existedUser.setLogin(user.getLogin());
         existedUser.setBirthday(user.getBirthday());
 
-        userRepository.save(existedUser);
+        userStorage.save(existedUser);
         return existedUser;
     }
 
     public Collection<User> getAllUsers() {
-        return userRepository.getAll();
+        return userStorage.getAll();
     }
 }

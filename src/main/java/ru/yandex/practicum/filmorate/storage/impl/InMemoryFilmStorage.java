@@ -7,14 +7,14 @@ import java.util.Map;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmRepository;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 
 /**
  * In memory implementation of films repository.
  */
 @Service
-public class InMemoryFilmRepository implements FilmRepository {
+public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
 
     private static long nextId = 1;

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.repository.exceptions;
+package ru.yandex.practicum.filmorate.storage.exceptions;
 
 /**
  * Represents common errors on DAO layer.

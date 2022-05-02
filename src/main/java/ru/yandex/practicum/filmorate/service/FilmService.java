@@ -4,8 +4,8 @@ import java.util.Collection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.service.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.storage.FilmRepository;
 
 /**
  * Provides service layer for films management.

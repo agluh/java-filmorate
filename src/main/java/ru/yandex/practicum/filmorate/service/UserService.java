@@ -4,8 +4,8 @@ import java.util.Collection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.UserRepository;
 import ru.yandex.practicum.filmorate.service.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.storage.UserRepository;
 
 /**
  * Provides service layer for users management.

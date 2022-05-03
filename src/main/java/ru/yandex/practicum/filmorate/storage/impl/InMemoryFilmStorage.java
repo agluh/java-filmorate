@@ -1,20 +1,20 @@
-package ru.yandex.practicum.filmorate.repository.impl;
+package ru.yandex.practicum.filmorate.storage.impl;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.repository.FilmRepository;
-import ru.yandex.practicum.filmorate.repository.exceptions.DaoException;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 
 /**
  * In memory implementation of films repository.
  */
-@Service
-public class InMemoryFilmRepository implements FilmRepository {
+@Component
+public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
 
     private static long nextId = 1;

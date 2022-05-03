@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.repository;
+package ru.yandex.practicum.filmorate.storage;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -7,7 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 /**
  * Repository for films.
  */
-public interface FilmRepository {
+public interface FilmStorage {
 
     Collection<Film> getAll();
 

@@ -17,8 +17,9 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import ru.yandex.practicum.filmorate.controller.apierror.ApiError;
-import ru.yandex.practicum.filmorate.controller.exception.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.repository.exceptions.DaoException;
+import ru.yandex.practicum.filmorate.service.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.service.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 
 /**
  * REST errors handler.
@@ -83,10 +84,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handle EntityNotFoundException. Happens when entity not found.
+     * Handle errors when entity not found.
      */
-    @ExceptionHandler(EntityNotFoundException.class)
-    protected ResponseEntity<Object> handleDaoException(EntityNotFoundException ex) {
+    @ExceptionHandler({UserNotFoundException.class, FilmNotFoundException.class})
+    protected ResponseEntity<Object> handleDaoException(RuntimeException ex) {
         ApiError apiError = new ApiError(NOT_FOUND);
         apiError.setMessage("Entity not found");
         apiError.setDebugMessage(ex.getMessage());

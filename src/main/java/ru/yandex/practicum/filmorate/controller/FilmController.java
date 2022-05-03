@@ -72,7 +72,7 @@ public class FilmController {
     @PutMapping("/{id}/like/{userId}")
     public ResponseEntity<?> addLike(@PathVariable("id") long filmId, @PathVariable long userId) {
         log.info("User {} likes a film {}", userId, filmId);
-        boolean isNewLike = likeService.doLike(userId, filmId);
+        likeService.doLike(userId, filmId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
@@ -83,7 +83,7 @@ public class FilmController {
     public ResponseEntity<?> removeLike(@PathVariable("id") long filmId,
         @PathVariable long userId) {
         log.info("User {} unlikes a film {}", userId, filmId);
-        boolean wasLiked = likeService.doUnlike(userId, filmId);
+        likeService.doUnlike(userId, filmId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

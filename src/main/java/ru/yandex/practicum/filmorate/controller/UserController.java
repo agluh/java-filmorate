@@ -72,7 +72,7 @@ public class UserController {
     public ResponseEntity<?> addFriend(@PathVariable("id") long userId,
         @PathVariable long friendId) {
         log.info("Make user {} friend of user {}", friendId, userId);
-        boolean areNewFriends = friendshipService.makeFriends(userId, friendId);
+        friendshipService.makeFriends(userId, friendId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
@@ -83,7 +83,7 @@ public class UserController {
     public ResponseEntity<?> removeFriend(@PathVariable("id") long userId,
         @PathVariable long friendId) {
         log.info("Unfriend users {} and {}", userId, friendId);
-        boolean wasFriends = friendshipService.unfriendUsers(userId, friendId);
+        friendshipService.unfriendUsers(userId, friendId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

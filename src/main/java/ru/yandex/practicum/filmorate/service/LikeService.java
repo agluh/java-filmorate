@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Like;
@@ -70,11 +71,25 @@ public class LikeService {
      * Retrieves specified count of most popular films.
      */
     public Collection<Film> getMostPopularFilms(int maxCount) {
-        // TODO: for better performance we could fetch all films at once
-        return likeStorage.getMostLikedFilms(maxCount).stream()
-            .map(filmStorage::getFilm)
-            .flatMap(Optional::stream)
-            .sorted(Comparator.comparing(Film::getName))
+        @AllArgsConstructor
+        @Getter
+        class RatedFilm implements Comparable<RatedFilm> {
+            Film film;
+            int rate;
+
+            @Override
+            public int compareTo(RatedFilm o) {
+                return Integer.compare(rate, o.rate);
+            }
+        }
+
+        Collection<Long> mostLikedFilms = likeStorage.getMostLikedFilms(maxCount);
+
+        return filmStorage.getAll().stream()
+            .map(film -> new RatedFilm(film, mostLikedFilms.contains(film.getId()) ? 1 : 0))
+            .sorted(Comparator.comparingInt(RatedFilm::getRate).reversed())
+            .map(RatedFilm::getFilm)
+            .limit(maxCount)
             .collect(Collectors.toList());
     }
 

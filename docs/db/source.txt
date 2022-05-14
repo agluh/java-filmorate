@@ -1,0 +1,45 @@
+# Source for https://app.quickdatabasediagrams.com/#/
+
+user
+-
+user_id PK int autoincrement
+email varchar(255) unique
+login varchar(255) unique
+name varchar(255)
+birthday date
+
+film
+-
+film_id PK int autoincrement
+name varchar(255)
+description text
+release_date date
+duration int
+mpaa_id int FK >- mpaa.mpaa_id
+
+genre
+-
+genre_id PK int autoincrement
+name varchar(255)
+
+film_genre
+-
+film_id int PK FK >- film.film_id
+genre_id int PK FK >- genre.genre_id
+
+mpaa
+-
+mpaa_id PK int autoincrement
+name varchar(255)
+
+friendship
+-
+inviter_id int PK FK >- user.user_id
+acceptor_id int PK FK >- user.user_id
+is_confirmed boolean
+
+like
+-
+user_id int PK FK >- user.user_id
+film_id int PK FK >- film.film_id
+created_at date

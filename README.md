@@ -85,13 +85,13 @@
 
 ### Mark a film as liked by user
 ```sql
-    INSERT INTO like (user_id, film_id, created_at) 
+    INSERT INTO `like` (user_id, film_id, created_at) 
     VALUES (1, 1, '2022-05-14');
 ```
 
 ### Unlike film
 ```sql
-    DELETE FROM like 
+    DELETE FROM `like` 
     WHERE user_id = 1 AND film_id = 1;
 ```
 
@@ -100,7 +100,7 @@
     SELECT f.*, 
            COUNT(DISTINCT l.user_id) AS unique_likes
     FROM film AS f
-    LEFT JOIN like AS l on f.film_id = l.film_id
+    LEFT JOIN `like` AS l on f.film_id = l.film_id
     GROUP BY f.film_id
     ORDER BY unique_likes DESC;
 ```

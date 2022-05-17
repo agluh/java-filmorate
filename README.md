@@ -5,8 +5,8 @@
 ## Avoiding composite primary key permutations on friendship table
 ```sql
     CREATE TABLE friendship (
-      inviter_id INT NOT NULL,
-      acceptor_id INT NOT NULL,
+      inviter_id BIGINT NOT NULL,
+      acceptor_id BIGINT NOT NULL,
       is_confirmed BOOLEAN NOT NULL,
       CONSTRAINT uq1 UNIQUE (
         (LEAST(inviter_id, acceptor_id)), (GREATEST(inviter_id, acceptor_id))

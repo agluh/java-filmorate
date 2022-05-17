@@ -48,9 +48,9 @@
     SELECT *
     FROM user AS u
     WHERE u.user_id IN (
-        (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = 1)
+        (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = 1 AND is_confirmed IS TRUE)
         UNION
-        (SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = 1)
+        (SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = 1 AND is_confirmed IS TRUE)
     );
 ```
 
@@ -59,14 +59,14 @@
     SELECT *
     FROM user AS u
     WHERE u.user_id IN (
-        (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = 1)
+        (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = 1 AND is_confirmed IS TRUE)
         UNION
-        (SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = 1)
+        (SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = 1 AND is_confirmed IS TRUE)
     ) 
     AND u.user_id IN (
-        (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = 2)
+        (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = 2 AND is_confirmed IS TRUE)
         UNION
-        (SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = 2)
+        (SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = 2 AND is_confirmed IS TRUE)
     );
 ```
 

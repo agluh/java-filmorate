@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Friendship;
@@ -19,31 +17,32 @@ import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
  */
 @Component
 public class InMemoryFriendshipStorage implements FriendshipStorage {
-    private final Map<Long, Set<Friendship>> inviters = new HashMap<>();
-    private final Map<Long, Set<Friendship>> acceptors = new HashMap<>();
+    private final Map<Long, Set<Friendship>> left = new HashMap<>();
+    private final Map<Long, Set<Friendship>> right = new HashMap<>();
     private final Map<ComposedKey, Friendship> composedIndex = new HashMap<>();
 
     @Override
     public void save(Friendship friendship) {
-        composedIndex.put(ComposedKey.from(friendship), friendship);
+        ComposedKey key = ComposedKey.from(friendship);
+        composedIndex.put(key, friendship);
 
-        inviters.putIfAbsent(friendship.getInviterId(), new HashSet<>());
-        inviters.get(friendship.getInviterId()).add(friendship);
+        left.putIfAbsent(key.id1, new HashSet<>());
+        left.get(key.id1).add(friendship);
 
-        acceptors.putIfAbsent(friendship.getAcceptorId(), new HashSet<>());
-        acceptors.get(friendship.getAcceptorId()).add(friendship);
+        right.putIfAbsent(key.id2, new HashSet<>());
+        right.get(key.id2).add(friendship);
     }
 
     @Override
     public void delete(Friendship friendship) {
-        composedIndex.remove(ComposedKey.from(friendship));
-        removeIfPresent(inviters, friendship::getInviterId, friendship);
-        removeIfPresent(acceptors, friendship::getAcceptorId, friendship);
+        ComposedKey key = ComposedKey.from(friendship);
+        composedIndex.remove(key);
+        removeIfPresent(left, key.id1, friendship);
+        removeIfPresent(right, key.id2, friendship);
     }
 
     private <T> void removeIfPresent(Map<Long, Set<T>> map,
-        Supplier<? extends Long> keySupplier, T elem) {
-        Long key = keySupplier.get();
+        long key, T elem) {
 
         if (map.containsKey(key)) {
             map.get(key).remove(elem);
@@ -57,36 +56,31 @@ public class InMemoryFriendshipStorage implements FriendshipStorage {
     @Override
     public Optional<Friendship> getFriendshipMetadataByUserIds(long userId, long otherId) {
         ComposedKey key = new ComposedKey(userId, otherId);
-
-        Friendship friendship = composedIndex.get(key);
-        if (friendship == null) {
-            friendship = composedIndex.get(key.getOpposite());
-        }
-
-        return Optional.ofNullable(friendship);
+        return Optional.ofNullable(composedIndex.get(key));
     }
 
     @Override
     public Collection<Friendship> getFriendshipMetadataOfUser(long userId) {
-        Set<Friendship> set = inviters.get(userId);
-        if (set == null || set.isEmpty()) {
-            set = acceptors.get(userId);
-        }
-        return set != null ? set : Collections.emptySet();
+        Set<Friendship> set = new HashSet<>();
+
+        set.addAll(left.getOrDefault(userId, Collections.emptySet()));
+        set.addAll(right.getOrDefault(userId, Collections.emptySet()));
+
+        return set;
     }
 
     @EqualsAndHashCode
-    @AllArgsConstructor
     private static class ComposedKey {
         final long id1;
         final long id2;
 
-        static ComposedKey from(Friendship friendship) {
-            return new ComposedKey(friendship.getInviterId(), friendship.getAcceptorId());
+        private ComposedKey(long id1, long id2) {
+            this.id1 = Math.min(id1, id2);
+            this.id2 = Math.max(id1, id2);
         }
 
-        ComposedKey getOpposite() {
-            return new ComposedKey(id2, id1);
+        static ComposedKey from(Friendship friendship) {
+            return new ComposedKey(friendship.getInviterId(), friendship.getAcceptorId());
         }
     }
 }

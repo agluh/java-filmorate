@@ -19,7 +19,7 @@ public class UserService {
      * Creates a new user.
      */
     public User createUser(User user) {
-        if (user.getName() == null) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
 

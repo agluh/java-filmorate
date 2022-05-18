@@ -1,0 +1,40 @@
+# Source for https://app.quickdatabasediagrams.com/#/
+
+user
+-
+user_id PK bigserial
+email varchar(255) unique
+login varchar(255) unique
+name varchar(255)
+birthday date
+
+film
+-
+film_id PK bigserial
+name varchar(255)
+description text
+release_date date
+duration int
+mpaa char(10)
+
+genre
+-
+genre_id PK bigserial
+name varchar(255)
+
+film_genre
+-
+film_id bigint PK FK >- film.film_id
+genre_id bigint PK FK >- genre.genre_id
+
+friendship
+-
+inviter_id bigint PK FK >- user.user_id
+acceptor_id bigint PK FK >- user.user_id
+is_confirmed boolean
+
+like
+-
+user_id bigint PK FK >- user.user_id
+film_id bigint PK FK >- film.film_id
+created_at date

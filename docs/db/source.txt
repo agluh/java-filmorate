@@ -15,7 +15,7 @@ name varchar(255)
 description text
 release_date date
 duration int
-mpaa_id bigint FK >- mpaa.mpaa_id
+mpaa char(10)
 
 genre
 -
@@ -26,11 +26,6 @@ film_genre
 -
 film_id bigint PK FK >- film.film_id
 genre_id bigint PK FK >- genre.genre_id
-
-mpaa
--
-mpaa_id PK bigserial
-name varchar(255)
 
 friendship
 -

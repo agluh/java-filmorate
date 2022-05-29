@@ -1,5 +1,7 @@
 # java-filmorate
 
+![Films API Tests](https://github.com/agluh/java-filmorate/actions/workflows/api-tests.yml/badge.svg)
+
 ![Database schema](docs/db/schema.png)
 
 ## Avoiding composite primary key permutations on friendship table

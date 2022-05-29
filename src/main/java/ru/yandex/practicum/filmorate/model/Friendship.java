@@ -23,6 +23,9 @@ public class Friendship {
      */
     private final long acceptorId;
 
-    @EqualsAndHashCode.Exclude
-    private final ZonedDateTime createdAt;
+    private boolean isConfirmed;
+
+    public void setConfirmed(boolean isConfirmed) {
+        this.isConfirmed = isConfirmed;
+    }
 }

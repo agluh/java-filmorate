@@ -1,7 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,40 +23,43 @@ public class FriendshipService {
     /**
      * Makes two users friend of each other.
      *
-     * @return true if users were not friends before, false otherwise.
      * @throws UserNotFoundException in case user not found by its identity.
      */
-    public boolean makeFriends(long userId, long otherId) {
-        ensureUserExists(userId);
-        ensureUserExists(otherId);
+    public void makeFriends(long inviterId, long acceptorId) {
+        ensureUserExists(inviterId);
+        ensureUserExists(acceptorId);
 
-        if (friendshipStorage.getFriendshipMetadataByUserIds(userId, otherId).isPresent()) {
-            return false;
+        Friendship existedFriendship =
+            friendshipStorage.getFriendshipMetadataByUserIds(inviterId, acceptorId)
+                .orElse(null);
+
+        if (existedFriendship != null) {
+            if (existedFriendship.getInviterId() == inviterId || existedFriendship.isConfirmed()) {
+                return;
+            }
+
+            existedFriendship.setConfirmed(true);
+            friendshipStorage.save(existedFriendship);
+            return;
         }
 
-        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
-        Friendship friendship = new Friendship(userId, otherId, now);
+        Friendship friendship = new Friendship(inviterId, acceptorId, false);
         friendshipStorage.save(friendship);
-        return true;
     }
 
     /**
      * Breaks friendship between two users.
      *
-     * @return true if users were friends before, false otherwise.
      * @throws UserNotFoundException in case user not found by its identity.
      */
-    public boolean unfriendUsers(long userId, long otherId) {
+    public void unfriendUsers(long userId, long otherId) {
         ensureUserExists(userId);
         ensureUserExists(otherId);
 
         Optional<Friendship> friendship =
             friendshipStorage.getFriendshipMetadataByUserIds(userId, otherId);
 
-        boolean wasFriends = friendship.isPresent();
         friendship.ifPresent(friendshipStorage::delete);
-
-        return wasFriends;
     }
 
     /**
@@ -71,6 +72,7 @@ public class FriendshipService {
 
         // TODO: could be better if we retrieve all users from user storage at once
         return friendshipStorage.getFriendshipMetadataOfUser(userId).stream()
+            .filter(f -> f.isConfirmed() || f.getInviterId() == userId)
             .map(f -> userStorage.getUser(getFriendFromFriendship(f, userId)))
             .flatMap(Optional::stream)
             .collect(Collectors.toSet());

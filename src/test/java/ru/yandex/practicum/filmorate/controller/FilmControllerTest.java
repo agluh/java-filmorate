@@ -61,7 +61,8 @@ class FilmControllerTest {
             + "\"name\":\"\","
             + "\"description\":\"description\","
             + "\"releaseDate\":\"1988-08-20\","
-            + "\"duration\":100"
+            + "\"duration\":100,"
+            + "\"mpa\":{\"id\":1}"
             + "}";
 
         mockMvc.perform(post("/films")
@@ -85,7 +86,8 @@ class FilmControllerTest {
             + "\"name\":\"name\","
             + "\"description\":\"" + "a".repeat(201) + "\","
             + "\"releaseDate\":\"1988-08-20\","
-            + "\"duration\":100"
+            + "\"duration\":100,"
+            + "\"mpa\":{\"id\":1}"
             + "}";
 
         mockMvc.perform(post("/films")
@@ -110,7 +112,8 @@ class FilmControllerTest {
             + "\"name\":\"name\","
             + "\"description\":\"description\","
             + "\"releaseDate\":\"1800-08-20\","
-            + "\"duration\":100"
+            + "\"duration\":100,"
+            + "\"mpa\":{\"id\":1}"
             + "}";
 
         mockMvc.perform(post("/films")
@@ -135,7 +138,8 @@ class FilmControllerTest {
             + "\"name\":\"name\","
             + "\"description\":\"description\","
             + "\"releaseDate\":\"1800-08-20\","
-            + "\"duration\":-1"
+            + "\"duration\":-1,"
+            + "\"mpa\":{\"id\":1}"
             + "}";
 
         mockMvc.perform(post("/films")
@@ -153,9 +157,6 @@ class FilmControllerTest {
                 is("must be greater than 0")));
     }
 
-
-
-
     @Test
     void whenUpdateFilmWithEmptyName_shouldReturnCode400() throws Exception {
         String filmInJson = "{"
@@ -163,7 +164,8 @@ class FilmControllerTest {
             + "\"name\":\"\","
             + "\"description\":\"description\","
             + "\"releaseDate\":\"1988-08-20\","
-            + "\"duration\":100"
+            + "\"duration\":100,"
+            + "\"mpa\":{\"id\":1}"
             + "}";
 
         mockMvc.perform(put("/films")
@@ -188,7 +190,8 @@ class FilmControllerTest {
             + "\"name\":\"name\","
             + "\"description\":\"" + "a".repeat(201) + "\","
             + "\"releaseDate\":\"1988-08-20\","
-            + "\"duration\":100"
+            + "\"duration\":100,"
+            + "\"mpa\":{\"id\":1}"
             + "}";
 
         mockMvc.perform(put("/films")
@@ -214,7 +217,8 @@ class FilmControllerTest {
             + "\"name\":\"name\","
             + "\"description\":\"description\","
             + "\"releaseDate\":\"1800-08-20\","
-            + "\"duration\":100"
+            + "\"duration\":100,"
+            + "\"mpa\":{\"id\":1}"
             + "}";
 
         mockMvc.perform(put("/films")
@@ -240,7 +244,8 @@ class FilmControllerTest {
             + "\"name\":\"name\","
             + "\"description\":\"description\","
             + "\"releaseDate\":\"1800-08-20\","
-            + "\"duration\":-1"
+            + "\"duration\":-1,"
+            + "\"mpa\":{\"id\":1}"
             + "}";
 
         mockMvc.perform(put("/films")

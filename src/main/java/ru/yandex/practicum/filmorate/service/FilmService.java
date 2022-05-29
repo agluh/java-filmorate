@@ -1,19 +1,26 @@
 package ru.yandex.practicum.filmorate.service;
 
 import java.util.Collection;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.storage.FilmReadModel;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 /**
  * Provides service layer for films management.
  */
 @Service
-@RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final FilmReadModel filmReadModel;
+
+    @Autowired
+    public FilmService(FilmStorage filmStorage, FilmReadModel filmReadModel) {
+        this.filmStorage = filmStorage;
+        this.filmReadModel = filmReadModel;
+    }
 
     public Film createFilm(Film film) {
         filmStorage.save(film);
@@ -39,7 +46,11 @@ public class FilmService {
     }
 
     public Collection<Film> getAllFilms() {
-        return filmStorage.getAll();
+        return filmReadModel.getAll();
+    }
+
+    public Collection<Film> getMostPopularFilms(int maxCount) {
+        return filmReadModel.getMostPopularFilms(maxCount);
     }
 
     public Film getFilm(long filmId) {

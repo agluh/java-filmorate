@@ -21,7 +21,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FriendshipService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 @WebMvcTest(UserController.class)
@@ -37,9 +36,6 @@ class UserControllerTest {
 
     @MockBean
     private UserService service;
-
-    @MockBean
-    private FriendshipService friendshipService;
 
     @Test
     void givenListOfUsers_shouldReturnCode200AndCorrectData() throws Exception {

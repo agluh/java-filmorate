@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import java.util.Collection;
 import java.util.Optional;
 import ru.yandex.practicum.filmorate.model.Like;
 
@@ -14,6 +13,4 @@ public interface LikeStorage {
     void delete(Like like);
 
     Optional<Like> getLikeMetadataByUserAndFilm(long userId, long filmId);
-
-    Collection<Long> getMostLikedFilms(int max);
 }

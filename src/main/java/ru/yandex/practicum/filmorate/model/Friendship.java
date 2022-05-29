@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -27,5 +26,9 @@ public class Friendship {
 
     public void setConfirmed(boolean isConfirmed) {
         this.isConfirmed = isConfirmed;
+    }
+
+    public boolean isInitiatedBy(long userId) {
+        return inviterId == userId;
     }
 }

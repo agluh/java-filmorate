@@ -12,8 +12,10 @@ VALUES
 
 INSERT INTO film (name, description, release_date, duration, mpaa)
 VALUES
-    ('Matrix', 'Best film ever', '1999-10-14', 136, 'R');
+    ('Matrix', 'Best film ever', '1999-10-14', 136, 'R'),
+    ('The Batman', 'Is it a bird? Is it a plane? No, this is Batman!', '2022-03-04', 130, 'R');
 
 INSERT INTO `like` (user_id, film_id, created_at)
 VALUES
-    (1, 1, '2021-03-08T01:00:01.000000800');
+    (1, 2, '2021-03-08T01:00:01.000000800'),
+    (2, 2, '2022-05-11T01:00:01.000000800');

@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.MPAA;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.LikeService;
 
@@ -259,6 +260,6 @@ class FilmControllerTest {
 
 
     private Film createFilm() {
-        return new Film(1L, NAME, DESCRIPTION, RELEASE_DATE, DURATION);
+        return new Film(1L, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPAA.G);
     }
 }

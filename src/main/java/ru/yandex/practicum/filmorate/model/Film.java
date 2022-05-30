@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -51,6 +50,5 @@ public class Film {
     private long duration;
 
     @NotNull(groups = {ValidationMarker.OnCreate.class, ValidationMarker.OnUpdate.class})
-    @JsonProperty("mpa")
-    private MPAA mpaa;
+    private MpaRating mpa;
 }

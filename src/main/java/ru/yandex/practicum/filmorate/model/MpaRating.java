@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-public enum MPAA {
+public enum MpaRating {
     G("G - у фильма нет возрастных ограничений"),
     PG("PG - детям рекомендуется смотреть фильм с родителями"),
     PG_13("PG-13 - детям до 13 лет просмотр не желателен"),
@@ -14,7 +14,7 @@ public enum MPAA {
 
     private final String name;
 
-    MPAA(String name) {
+    MpaRating(String name) {
         this.name = name;
     }
 
@@ -27,7 +27,7 @@ public enum MPAA {
     }
 
     @JsonCreator
-    public static MPAA forObject(@JsonProperty("id") int id) {
-        return MPAA.values()[id - 1];
+    public static MpaRating forObject(@JsonProperty("id") int id) {
+        return MpaRating.values()[id - 1];
     }
 }

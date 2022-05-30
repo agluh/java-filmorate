@@ -39,7 +39,7 @@ public class FilmService {
         existedFilm.setDescription(film.getDescription());
         existedFilm.setReleaseDate(film.getReleaseDate());
         existedFilm.setDuration(film.getDuration());
-        existedFilm.setMpaa(film.getMpaa());
+        existedFilm.setMpa(film.getMpa());
 
         filmStorage.save(existedFilm);
         return existedFilm;

@@ -14,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Like;
-import ru.yandex.practicum.filmorate.model.MPAA;
+import ru.yandex.practicum.filmorate.model.MpaRating;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -55,7 +55,7 @@ class FilmDbStorageTest {
     @Test
     void testSaveFilm() {
         Film film = new Film(null, "Name", "Description",
-            LocalDate.of(2022, 4, 22), 120, MPAA.G);
+            LocalDate.of(2022, 4, 22), 120, MpaRating.G);
 
         filmStorage.save(film);
 

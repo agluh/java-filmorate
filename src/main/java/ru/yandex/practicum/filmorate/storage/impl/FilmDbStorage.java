@@ -17,7 +17,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Like;
-import ru.yandex.practicum.filmorate.model.MPAA;
+import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.FilmReadModel;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
@@ -59,7 +59,7 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
                 ps.setString(2, film.getDescription());
                 ps.setDate(3, Date.valueOf(film.getReleaseDate()));
                 ps.setLong(4, film.getDuration());
-                ps.setString(5, film.getMpaa().name());
+                ps.setString(5, film.getMpa().name());
                 return ps;
             }, keyHolder);
 
@@ -70,7 +70,7 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
                 + " WHERE film_id = ?";
             jdbcTemplate.update(sql, film.getName(), film.getDescription(),
                 Date.valueOf(film.getReleaseDate()), film.getDuration(),
-                film.getMpaa().name(), film.getId());
+                film.getMpa().name(), film.getId());
         }
     }
 
@@ -133,7 +133,7 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
             rs.getString("description"),
             rs.getDate("release_date").toLocalDate(),
             rs.getLong("duration"),
-            MPAA.valueOf(rs.getString("mpaa"))
+            MpaRating.valueOf(rs.getString("mpaa"))
         );
     }
 

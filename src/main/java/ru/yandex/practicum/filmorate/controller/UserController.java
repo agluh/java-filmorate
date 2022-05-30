@@ -4,8 +4,6 @@ import java.util.Collection;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FriendshipService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validation.ValidationMarker;
 
@@ -31,7 +28,6 @@ import ru.yandex.practicum.filmorate.validation.ValidationMarker;
 public class UserController {
 
     private final UserService userService;
-    private final FriendshipService friendshipService;
 
     /**
      * Adds a new user.
@@ -69,33 +65,31 @@ public class UserController {
      * Makes user friends of each other.
      */
     @PutMapping("/{id}/friends/{friendId}")
-    public ResponseEntity<?> addFriend(@PathVariable("id") long userId,
+    public void addFriend(@PathVariable("id") long userId,
         @PathVariable long friendId) {
         log.info("Make user {} friend of user {}", friendId, userId);
-        friendshipService.makeFriends(userId, friendId);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        userService.makeFriends(userId, friendId);
     }
 
     /**
      * Unfriend two users.
      */
     @DeleteMapping("/{id}/friends/{friendId}")
-    public ResponseEntity<?> removeFriend(@PathVariable("id") long userId,
+    public void removeFriend(@PathVariable("id") long userId,
         @PathVariable long friendId) {
         log.info("Unfriend users {} and {}", userId, friendId);
-        friendshipService.unfriendUsers(userId, friendId);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        userService.unfriendUsers(userId, friendId);
     }
 
     @GetMapping("/{id}/friends")
     public Collection<User> getFriendsOfUser(@PathVariable("id") long userId) {
-        return friendshipService.getFriendsOfUser(userId);
+        return userService.getFriendsOfUser(userId);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public Collection<User> getCommonFriends(
         @PathVariable("id") long userId,
         @PathVariable long otherId) {
-        return friendshipService.getCommonFriends(userId, otherId);
+        return userService.getCommonFriends(userId, otherId);
     }
 }

@@ -36,7 +36,7 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
 
     @Override
     public Optional<User> getUser(long id) {
-        String sql = "SELECT user_id AS id, email, login, name, birthday FROM user"
+        String sql = "SELECT user_id, email, login, name, birthday FROM `user`"
             + " WHERE user_id = ?";
         return jdbcTemplate.query(
             sql, this::mapRowToUser, id
@@ -47,7 +47,7 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
     public void save(User user) {
         if (user.getId() == null) {
             KeyHolder keyHolder = new GeneratedKeyHolder();
-            String sql = "INSERT INTO user (email, login, name, birthday) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO `user` (email, login, name, birthday) VALUES (?, ?, ?, ?)";
 
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(sql, new String[]{"user_id"});
@@ -60,7 +60,7 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
 
             injectId(user, keyHolder.getKey().longValue());
         } else {
-            String sql = "UPDATE user SET email = ?, login = ?, name = ?, birthday = ?"
+            String sql = "UPDATE `user` SET email = ?, login = ?, name = ?, birthday = ?"
                 + " WHERE user_id = ?";
             jdbcTemplate.update(sql, user.getEmail(), user.getLogin(),
                 user.getName(), Date.valueOf(user.getBirthday()), user.getId());
@@ -94,14 +94,14 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
 
     @Override
     public Collection<User> getAll() {
-        String sql = "SELECT user_id AS id, email, login, name, birthday FROM user";
+        String sql = "SELECT user_id, email, login, name, birthday FROM `user`";
         return jdbcTemplate.query(sql, this::mapRowToUser);
     }
 
     @Override
     public Collection<User> getFriendsOfUser(long userId) {
-        String sql = "SELECT user_id AS id, email, login, name, birthday"
-            + " FROM user AS u"
+        String sql = "SELECT user_id, email, login, name, birthday"
+            + " FROM `user` AS u"
             + " WHERE u.user_id IN ("
             + "   (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?)"
             + "   UNION"
@@ -114,8 +114,8 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
 
     @Override
     public Collection<User> getCommonFriendsOfUsers(long userId, long otherId) {
-        String sql = "SELECT user_id AS id, email, login, name, birthday"
-            + " FROM user AS u"
+        String sql = "SELECT user_id, email, login, name, birthday"
+            + " FROM `user` AS u"
             + " WHERE u.user_id IN ("
             + "   (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?)"
             + "   UNION"

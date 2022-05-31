@@ -133,7 +133,7 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
             rs.getString("description"),
             rs.getDate("release_date").toLocalDate(),
             rs.getLong("duration"),
-            MpaRating.valueOf(rs.getString("mpaa"))
+            MpaRating.valueOf(rs.getString("mpaa").trim())
         );
     }
 

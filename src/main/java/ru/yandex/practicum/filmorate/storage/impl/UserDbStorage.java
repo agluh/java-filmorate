@@ -27,94 +27,34 @@ import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 @Primary
 public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadModel {
 
-    private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-    @Override
-    public Optional<User> getUser(long id) {
-        String sql = "SELECT user_id, email, login, name, birthday FROM `user`"
-            + " WHERE user_id = ?";
-        return jdbcTemplate.query(
-            sql, this::mapRowToUser, id
-        ).stream().findAny();
-    }
-
-    @Override
-    public void save(User user) {
-        if (user.getId() == null) {
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-            String sql = "INSERT INTO `user` (email, login, name, birthday) VALUES (?, ?, ?, ?)";
-
-            jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(sql, new String[]{"user_id"});
-                ps.setString(1, user.getEmail());
-                ps.setString(2, user.getLogin());
-                ps.setString(3, user.getName());
-                ps.setDate(4, Date.valueOf(user.getBirthday()));
-                return ps;
-            }, keyHolder);
-
-            injectId(user, keyHolder.getKey().longValue());
-        } else {
-            String sql = "UPDATE `user` SET email = ?, login = ?, name = ?, birthday = ?"
-                + " WHERE user_id = ?";
-            jdbcTemplate.update(sql, user.getEmail(), user.getLogin(),
-                user.getName(), Date.valueOf(user.getBirthday()), user.getId());
-        }
-    }
-
-    @Override
-    public void save(Friendship friendship) {
-        String sql = "MERGE INTO friendship (inviter_id, acceptor_id, is_confirmed)"
-            + " KEY (inviter_id, acceptor_id) VALUES (?, ?, ?)";
-        jdbcTemplate.update(sql, friendship.getInviterId(), friendship.getAcceptorId(),
-            friendship.isConfirmed());
-    }
-
-    @Override
-    public void delete(Friendship friendship) {
-        String sql = "DELETE FROM friendship WHERE inviter_id = ? AND acceptor_id = ?";
-        jdbcTemplate.update(sql, friendship.getInviterId(), friendship.getAcceptorId());
-    }
-
-    @Override
-    public Optional<Friendship> getFriendshipMetadataByUserIds(long userId, long otherId) {
-        String sql = "SELECT inviter_id, acceptor_id, is_confirmed FROM friendship"
+    public static final String SELECT_USER =
+        "SELECT user_id, email, login, name, birthday FROM `user` WHERE user_id = ?";
+    public static final String SELECT_USERS =
+        "SELECT user_id, email, login, name, birthday FROM `user`";
+    public static final String INSERT_USER =
+        "INSERT INTO `user` (email, login, name, birthday) VALUES (?, ?, ?, ?)";
+    public static final String UPDATE_USER =
+        "UPDATE `user` SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?";
+    public static final String SELECT_FRIENDSHIP =
+        "SELECT inviter_id, acceptor_id, is_confirmed FROM friendship"
             + " WHERE (inviter_id = ? AND acceptor_id = ?)"
             + " OR (acceptor_id = ? AND inviter_id = ?)";
-        return jdbcTemplate.query(sql, this::mapRowToFriendship,
-            userId, otherId,
-            userId, otherId
-        ).stream().findAny();
-    }
-
-    @Override
-    public Collection<User> getAll() {
-        String sql = "SELECT user_id, email, login, name, birthday FROM `user`";
-        return jdbcTemplate.query(sql, this::mapRowToUser);
-    }
-
-    @Override
-    public Collection<User> getFriendsOfUser(long userId) {
-        String sql = "SELECT user_id, email, login, name, birthday"
-            + " FROM `user` AS u"
-            + " WHERE u.user_id IN ("
-            + "   (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?)"
-            + "   UNION"
-            + "   (SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = ?"
-            + "      AND is_confirmed IS TRUE)"
-            + " )";
-        return jdbcTemplate.query(sql, this::mapRowToUser,
-            userId, userId);
-    }
-
-    @Override
-    public Collection<User> getCommonFriendsOfUsers(long userId, long otherId) {
-        String sql = "SELECT user_id, email, login, name, birthday"
+    public static final String UPDATE_FRIENDSHIP =
+        "MERGE INTO friendship (inviter_id, acceptor_id, is_confirmed)"
+            + " KEY (inviter_id, acceptor_id) VALUES (?, ?, ?)";
+    public static final String DELETE_FRIENDSHIP =
+        "DELETE FROM friendship WHERE inviter_id = ? AND acceptor_id = ?";
+    public static final String SELECT_FRIENDS =
+        "SELECT user_id, email, login, name, birthday"
+        + " FROM `user` AS u"
+        + " WHERE u.user_id IN ("
+        + "   (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?)"
+        + "   UNION"
+        + "   (SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = ?"
+        + "      AND is_confirmed IS TRUE)"
+        + " )";
+    public static final String SELECT_COMMON_FRIENDS =
+        "SELECT user_id, email, login, name, birthday"
             + " FROM `user` AS u"
             + " WHERE u.user_id IN ("
             + "   (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?)"
@@ -128,7 +68,72 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
             + "   (SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = ?"
             + "      AND is_confirmed IS TRUE)"
             + " )";
-        return jdbcTemplate.query(sql, this::mapRowToUser,
+
+    private final JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public UserDbStorage(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    @Override
+    public Optional<User> getUser(long id) {
+        return jdbcTemplate.query(SELECT_USER, this::mapRowToUser, id).stream().findAny();
+    }
+
+    @Override
+    public void save(User user) {
+        if (user.getId() == null) {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(INSERT_USER,
+                    new String[]{"user_id"});
+                ps.setString(1, user.getEmail());
+                ps.setString(2, user.getLogin());
+                ps.setString(3, user.getName());
+                ps.setDate(4, Date.valueOf(user.getBirthday()));
+                return ps;
+            }, keyHolder);
+
+            injectId(user, keyHolder.getKey().longValue());
+        } else {
+            jdbcTemplate.update(UPDATE_USER, user.getEmail(), user.getLogin(),
+                user.getName(), Date.valueOf(user.getBirthday()), user.getId());
+        }
+    }
+
+    @Override
+    public void save(Friendship friendship) {
+        jdbcTemplate.update(UPDATE_FRIENDSHIP, friendship.getInviterId(),
+            friendship.getAcceptorId(), friendship.isConfirmed());
+    }
+
+    @Override
+    public void delete(Friendship friendship) {
+        jdbcTemplate.update(DELETE_FRIENDSHIP, friendship.getInviterId(),
+            friendship.getAcceptorId());
+    }
+
+    @Override
+    public Optional<Friendship> getFriendshipMetadataByUserIds(long userId, long otherId) {
+        return jdbcTemplate.query(SELECT_FRIENDSHIP, this::mapRowToFriendship,
+            userId, otherId, userId, otherId).stream().findAny();
+    }
+
+    @Override
+    public Collection<User> getAll() {
+        return jdbcTemplate.query(SELECT_USERS, this::mapRowToUser);
+    }
+
+    @Override
+    public Collection<User> getFriendsOfUser(long userId) {
+        return jdbcTemplate.query(SELECT_FRIENDS, this::mapRowToUser, userId, userId);
+    }
+
+    @Override
+    public Collection<User> getCommonFriendsOfUsers(long userId, long otherId) {
+        return jdbcTemplate.query(SELECT_COMMON_FRIENDS, this::mapRowToUser,
             userId, userId, otherId, otherId);
     }
 

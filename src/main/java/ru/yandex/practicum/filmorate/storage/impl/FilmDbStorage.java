@@ -30,6 +30,31 @@ import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 @Primary
 public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
 
+    public static final String SELECT_FILM =
+        "SELECT film_id, name, description, release_date, duration, mpaa"
+            + " FROM film WHERE film_id = ?";
+    public static final String SELECT_FILMS =
+        "SELECT film_id, name, description, release_date, duration, mpaa FROM film";
+    public static final String SELECT_POPULAR_FILMS =
+        "SELECT f.film_id, f.name, f.description, f.release_date,"
+            + " f.duration, f.mpaa"
+            + " FROM film AS f"
+            + " LEFT JOIN `like` AS l on f.film_id = l.film_id"
+            + " GROUP BY f.film_id"
+            + " ORDER BY COUNT(DISTINCT l.user_id) DESC"
+            + " LIMIT ?";
+    public static final String INSERT_FILM =
+        "INSERT INTO film (name, description, release_date, duration, mpaa) "
+            + "VALUES (?, ?, ?, ?, ?)";
+    public static final String UPDATE_FILM =
+        "UPDATE film SET name = ?, description = ?, release_date = ?, duration = ?, mpaa = ?"
+        + " WHERE film_id = ?";
+    public static final String SELECT_LIKE =
+        "SELECT user_id, film_id, created_at FROM `like` WHERE user_id = ? AND film_id = ?";
+    public static final String UPDATE_LIKE =
+        "MERGE INTO `like` (user_id, film_id, created_at) KEY (user_id, film_id) VALUES (?, ?, ?)";
+    public static final String DELETE_LIKE = "DELETE FROM `like` WHERE user_id = ? AND film_id = ?";
+
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -39,22 +64,17 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
 
     @Override
     public Optional<Film> getFilm(long id) {
-        String sql = "SELECT film_id, name, description, release_date, duration, mpaa"
-            + " FROM film WHERE film_id = ?";
-        return jdbcTemplate.query(
-            sql, this::mapRowToFilm, id
-        ).stream().findAny();
+        return jdbcTemplate.query(SELECT_FILM, this::mapRowToFilm, id).stream().findAny();
     }
 
     @Override
     public void save(Film film) {
         if (film.getId() == null) {
             KeyHolder keyHolder = new GeneratedKeyHolder();
-            String sql = "INSERT INTO film (name, description, release_date, duration, mpaa) "
-                + "VALUES (?, ?, ?, ?, ?)";
 
             jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(sql, new String[]{"film_id"});
+                PreparedStatement ps = connection.prepareStatement(INSERT_FILM,
+                    new String[]{"film_id"});
                 ps.setString(1, film.getName());
                 ps.setString(2, film.getDescription());
                 ps.setDate(3, Date.valueOf(film.getReleaseDate()));
@@ -65,10 +85,7 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
 
             injectId(film, keyHolder.getKey().longValue());
         } else {
-            String sql = "UPDATE film SET name = ?, description = ?,"
-                + " release_date = ?, duration = ?, mpaa = ?"
-                + " WHERE film_id = ?";
-            jdbcTemplate.update(sql, film.getName(), film.getDescription(),
+            jdbcTemplate.update(UPDATE_FILM, film.getName(), film.getDescription(),
                 Date.valueOf(film.getReleaseDate()), film.getDuration(),
                 film.getMpa().name(), film.getId());
         }
@@ -76,44 +93,28 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
 
     @Override
     public void save(Like like) {
-        String sql = "MERGE INTO `like` (user_id, film_id, created_at)"
-            + " KEY (user_id, film_id) VALUES (?, ?, ?)";
-        jdbcTemplate.update(sql, like.getUserid(), like.getFilmId(), like.getCreatedAt());
+        jdbcTemplate.update(UPDATE_LIKE, like.getUserid(), like.getFilmId(), like.getCreatedAt());
     }
 
     @Override
     public void delete(Like like) {
-        String sql = "DELETE FROM `like` WHERE user_id = ? AND film_id = ?";
-        jdbcTemplate.update(sql, like.getUserid(), like.getFilmId());
+        jdbcTemplate.update(DELETE_LIKE, like.getUserid(), like.getFilmId());
     }
 
     @Override
     public Optional<Like> getLikeMetadataByUserAndFilm(long userId, long filmId) {
-        String sql = "SELECT user_id, film_id, created_at FROM `like`"
-            + " WHERE user_id = ? AND film_id = ?";
-        return jdbcTemplate.query(
-            sql, this::mapRowToLike,
-            userId, filmId
-        ).stream().findAny();
+        return jdbcTemplate.query(SELECT_LIKE, this::mapRowToLike, userId, filmId)
+            .stream().findAny();
     }
 
     @Override
     public Collection<Film> getAll() {
-        String sql = "SELECT film_id, name, description, release_date, duration, mpaa"
-            + " FROM film";
-        return jdbcTemplate.query(sql, this::mapRowToFilm);
+        return jdbcTemplate.query(SELECT_FILMS, this::mapRowToFilm);
     }
 
     @Override
     public Collection<Film> getMostPopularFilms(int maxCount) {
-        String sql = "SELECT f.film_id, f.name, f.description, f.release_date,"
-            + " f.duration, f.mpaa"
-            + " FROM film AS f"
-            + " LEFT JOIN `like` AS l on f.film_id = l.film_id"
-            + " GROUP BY f.film_id"
-            + " ORDER BY COUNT(DISTINCT l.user_id) DESC"
-            + " LIMIT ?";
-        return jdbcTemplate.query(sql, this::mapRowToFilm, maxCount);
+        return jdbcTemplate.query(SELECT_POPULAR_FILMS, this::mapRowToFilm, maxCount);
     }
 
     private void injectId(Film film, long id) {

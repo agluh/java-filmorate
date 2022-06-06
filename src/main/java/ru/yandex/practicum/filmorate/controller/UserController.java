@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validation.ValidationMarker;
@@ -91,5 +92,10 @@ public class UserController {
         @PathVariable("id") long userId,
         @PathVariable long otherId) {
         return userService.getCommonFriends(userId, otherId);
+    }
+
+    @GetMapping("/{id}/feed")
+    public Collection<Event> getEventsOfUser(@PathVariable("id") long userId) {
+        return userService.getEventsOfUser(userId);
     }
 }

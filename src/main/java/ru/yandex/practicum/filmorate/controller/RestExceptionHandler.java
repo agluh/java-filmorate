@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import javax.validation.ConstraintViolationException;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import ru.yandex.practicum.filmorate.controller.apierror.ApiError;
 import ru.yandex.practicum.filmorate.service.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.service.exception.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.service.exception.MpaRatingNotFoundException;
+import ru.yandex.practicum.filmorate.service.exception.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.service.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 
@@ -35,10 +37,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-        MethodArgumentNotValidException ex,
-        HttpHeaders headers,
-        HttpStatus status,
-        WebRequest request) {
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatus status,
+            WebRequest request) {
         ApiError apiError = new ApiError(BAD_REQUEST);
         apiError.setMessage("Validation error");
         apiError.addValidationErrors(ex.getBindingResult().getFieldErrors());
@@ -51,7 +53,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(ConstraintViolationException.class)
     protected ResponseEntity<Object> handleConstraintViolation(
-        ConstraintViolationException ex) {
+            ConstraintViolationException ex) {
         ApiError apiError = new ApiError(BAD_REQUEST);
         apiError.setMessage("Validation error");
         apiError.addValidationErrors(ex.getConstraintViolations());
@@ -63,13 +65,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
-        HttpMessageNotReadableException ex,
-        HttpHeaders headers,
-        HttpStatus status,
-        WebRequest request) {
+            HttpMessageNotReadableException ex,
+            HttpHeaders headers,
+            HttpStatus status,
+            WebRequest request) {
         ServletWebRequest servletWebRequest = (ServletWebRequest) request;
         log.info("{} to {}", servletWebRequest.getHttpMethod(),
-            servletWebRequest.getRequest().getServletPath());
+                servletWebRequest.getRequest().getServletPath());
         String error = "Malformed JSON request";
         return buildResponseEntity(new ApiError(BAD_REQUEST, error, ex));
     }
@@ -88,7 +90,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handle errors when entity not found.
      */
-    @ExceptionHandler({UserNotFoundException.class, FilmNotFoundException.class,
+    @ExceptionHandler({UserNotFoundException.class, FilmNotFoundException.class,ReviewNotFoundException.class,
         GenreNotFoundException.class, MpaRatingNotFoundException.class})
     protected ResponseEntity<Object> handleDaoException(RuntimeException ex) {
         ApiError apiError = new ApiError(NOT_FOUND);

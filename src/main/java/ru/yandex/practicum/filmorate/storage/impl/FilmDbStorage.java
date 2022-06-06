@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,9 +25,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.model.MpaRating;
-import ru.yandex.practicum.filmorate.storage.FilmReadModel;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 
 /**
@@ -78,6 +77,19 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
     public static final String INSERT_GENRE =
         "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
 
+
+    public static final String SELECT_UNUSEFUL_REVIEW_BY_ID =
+            "SELECT COUNT(user_id) FROM useful_rates " +
+                    "WHERE is_useful <> true AND review_id = ? " +
+                    "GROUP BY review_id";
+
+    public static final String UPDATE_IS_USEFUL =
+            "MERGE INTO useful_rates (review_id, user_id, is_useful) KEY (review_id, user_id) VALUES (?, ?, ?)";
+
+    public static final String DELETE_REVIEW_LIKE =
+            "DELETE FROM USEFUL_RATES WHERE REVIEW_ID = ? AND USER_ID = ?";
+
+
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -97,7 +109,7 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
 
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(INSERT_FILM,
-                    new String[]{"film_id"});
+                        new String[]{"film_id"});
                 ps.setString(1, film.getName());
                 ps.setString(2, film.getDescription());
                 ps.setDate(3, Date.valueOf(film.getReleaseDate()));
@@ -109,8 +121,8 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
             injectId(film, keyHolder.getKey().longValue());
         } else {
             jdbcTemplate.update(UPDATE_FILM, film.getName(), film.getDescription(),
-                Date.valueOf(film.getReleaseDate()), film.getDuration(),
-                film.getMpa().name(), film.getId());
+                    Date.valueOf(film.getReleaseDate()), film.getDuration(),
+                    film.getMpa().name(), film.getId());
         }
 
         jdbcTemplate.update(DELETE_GENRES, film.getId());
@@ -141,7 +153,7 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
     @Override
     public Optional<Like> getLikeMetadataByUserAndFilm(long userId, long filmId) {
         return jdbcTemplate.query(SELECT_LIKE, this::mapRowToLike, userId, filmId)
-            .stream().findAny();
+                .stream().findAny();
     }
 
     @Override
@@ -224,9 +236,9 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
 
     private Like mapRowToLike(ResultSet rs, int rowNum) throws SQLException {
         return new Like(
-            rs.getLong("user_id"),
-            rs.getLong("film_id"),
-            rs.getObject("created_at", Instant.class).atZone(ZoneId.of("UTC"))
+                rs.getLong("user_id"),
+                rs.getLong("film_id"),
+                rs.getObject("created_at", Instant.class).atZone(ZoneId.of("UTC"))
         );
     }
 }

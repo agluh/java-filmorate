@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS films (
 
 CREATE TABLE IF NOT EXISTS genres (
     genre_id BIGSERIAL PRIMARY KEY NOT NULL,
-    name VARCHAR(255) NOT NULL
+    name     VARCHAR(255)          NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS film_genre (
@@ -51,3 +51,22 @@ CREATE TABLE IF NOT EXISTS events (
     operation VARCHAR(30),
     occurred_on DATETIME NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS reviews
+(
+    review_id   BIGSERIAL PRIMARY KEY,
+    user_id     BIGINT  NOT NULL REFERENCES users (user_id),
+    film_id     BIGINT  NOT NULL REFERENCES films (film_id) ON DELETE CASCADE ,
+    is_positive BOOLEAN NOT NULL,
+    content     TEXT    NOT NULL,
+    UNIQUE (user_id, film_id)
+);
+
+CREATE TABLE IF NOT EXISTS review_likes
+(
+    review_id BIGINT  NOT NULL REFERENCES reviews (review_id) ON DELETE CASCADE ,
+    user_id   BIGINT  NOT NULL REFERENCES users (user_id),
+    is_useful BOOLEAN NOT NULL,
+    PRIMARY KEY (review_id, user_id)
+);
+

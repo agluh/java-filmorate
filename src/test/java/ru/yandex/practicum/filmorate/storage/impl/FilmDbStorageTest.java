@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,8 @@ class FilmDbStorageTest {
     @Test
     void testSaveFilm() {
         Film film = new Film(null, "Name", "Description",
-            LocalDate.of(2022, 4, 22), 120, MpaRating.G);
+            LocalDate.of(2022, 4, 22), 120, MpaRating.G,
+            new HashSet<>());
 
         filmStorage.save(film);
 

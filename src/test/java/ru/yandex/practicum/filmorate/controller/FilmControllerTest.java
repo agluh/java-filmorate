@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -265,6 +266,7 @@ class FilmControllerTest {
 
 
     private Film createFilm() {
-        return new Film(1L, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MpaRating.G);
+        return new Film(1L, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MpaRating.G,
+            new HashSet<>());
     }
 }

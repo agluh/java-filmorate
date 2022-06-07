@@ -8,7 +8,10 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,6 +19,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.FilmReadModel;
@@ -54,6 +58,14 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
     public static final String UPDATE_LIKE =
         "MERGE INTO likes (user_id, film_id, created_at) KEY (user_id, film_id) VALUES (?, ?, ?)";
     public static final String DELETE_LIKE = "DELETE FROM likes WHERE user_id = ? AND film_id = ?";
+    public static final String SELECT_GENRES =
+        "SELECT g.genre_id AS genre_id, g.name AS name FROM film_genre AS fg"
+            + " JOIN genres AS g ON fg.genre_id = g.genre_id"
+            + " WHERE film_id = ?";
+    public static final String DELETE_GENRES =
+        "DELETE FROM film_genre WHERE film_id = ?";
+    public static final String INSERT_GENRE =
+        "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -88,6 +100,15 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
             jdbcTemplate.update(UPDATE_FILM, film.getName(), film.getDescription(),
                 Date.valueOf(film.getReleaseDate()), film.getDuration(),
                 film.getMpa().name(), film.getId());
+        }
+
+        jdbcTemplate.update(DELETE_GENRES, film.getId());
+
+        Set<Genre> genres = film.getGenres();
+        if (genres != null) {
+            for (Genre genre : genres) {
+                jdbcTemplate.update(INSERT_GENRE, film.getId(), genre.getId());
+            }
         }
     }
 
@@ -128,13 +149,23 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
     }
 
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
+        long filmId = rs.getLong("film_id");
+
+        List<Genre> genres = jdbcTemplate.query(
+            SELECT_GENRES,
+            (resultSet, num) -> new Genre(
+                resultSet.getLong("genre_id"),
+                resultSet.getString("name")
+            ), filmId);
+
         return new Film(
-            rs.getLong("film_id"),
+            filmId,
             rs.getString("name"),
             rs.getString("description"),
             rs.getDate("release_date").toLocalDate(),
             rs.getLong("duration"),
-            MpaRating.valueOf(rs.getString("mpa").trim())
+            MpaRating.valueOf(rs.getString("mpa").trim()),
+            genres.isEmpty() ? null : new HashSet<>(genres)
         );
     }
 

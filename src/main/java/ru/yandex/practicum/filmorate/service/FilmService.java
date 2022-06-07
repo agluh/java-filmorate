@@ -73,4 +73,14 @@ public class FilmService {
        }
     }
 
+
+    private void ensureFilmExists(long filmId) {
+        filmStorage.getFilm(filmId).orElseThrow(() ->
+                new FilmNotFoundException(filmId));
+    }
+
+    public void deleteFilm(long filmId) {
+        ensureFilmExists(filmId);
+        filmStorage.delete(filmId);
+    }
 }

@@ -156,4 +156,9 @@ public class UserService {
     private void ensureUserExists(long userId) {
         userStorage.getUser(userId).orElseThrow(() -> new UserNotFoundException(userId));
     }
+
+    public void deleteUser(long userId) {
+        ensureUserExists(userId);
+        userStorage.delete(userId);
+    }
 }

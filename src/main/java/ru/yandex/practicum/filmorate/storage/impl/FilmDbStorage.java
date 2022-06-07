@@ -32,28 +32,28 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
 
     public static final String SELECT_FILM =
         "SELECT film_id, name, description, release_date, duration, mpaa"
-            + " FROM film WHERE film_id = ?";
+            + " FROM films WHERE film_id = ?";
     public static final String SELECT_FILMS =
-        "SELECT film_id, name, description, release_date, duration, mpaa FROM film";
+        "SELECT film_id, name, description, release_date, duration, mpaa FROM films";
     public static final String SELECT_POPULAR_FILMS =
         "SELECT f.film_id, f.name, f.description, f.release_date,"
             + " f.duration, f.mpaa"
-            + " FROM film AS f"
-            + " LEFT JOIN `like` AS l on f.film_id = l.film_id"
+            + " FROM films AS f"
+            + " LEFT JOIN likes AS l on f.film_id = l.film_id"
             + " GROUP BY f.film_id"
             + " ORDER BY COUNT(DISTINCT l.user_id) DESC"
             + " LIMIT ?";
     public static final String INSERT_FILM =
-        "INSERT INTO film (name, description, release_date, duration, mpaa) "
+        "INSERT INTO films (name, description, release_date, duration, mpaa) "
             + "VALUES (?, ?, ?, ?, ?)";
     public static final String UPDATE_FILM =
-        "UPDATE film SET name = ?, description = ?, release_date = ?, duration = ?, mpaa = ?"
+        "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpaa = ?"
         + " WHERE film_id = ?";
     public static final String SELECT_LIKE =
-        "SELECT user_id, film_id, created_at FROM `like` WHERE user_id = ? AND film_id = ?";
+        "SELECT user_id, film_id, created_at FROM likes WHERE user_id = ? AND film_id = ?";
     public static final String UPDATE_LIKE =
-        "MERGE INTO `like` (user_id, film_id, created_at) KEY (user_id, film_id) VALUES (?, ?, ?)";
-    public static final String DELETE_LIKE = "DELETE FROM `like` WHERE user_id = ? AND film_id = ?";
+        "MERGE INTO likes (user_id, film_id, created_at) KEY (user_id, film_id) VALUES (?, ?, ?)";
+    public static final String DELETE_LIKE = "DELETE FROM likes WHERE user_id = ? AND film_id = ?";
 
     private final JdbcTemplate jdbcTemplate;
 

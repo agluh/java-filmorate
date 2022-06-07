@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `user` (
+CREATE TABLE IF NOT EXISTS users (
     user_id BIGSERIAL PRIMARY KEY NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     login VARCHAR(255) NOT NULL UNIQUE,
@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     birthday DATE NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS film (
+CREATE TABLE IF NOT EXISTS films (
     film_id BIGSERIAL PRIMARY KEY NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
@@ -15,20 +15,20 @@ CREATE TABLE IF NOT EXISTS film (
     mpaa CHAR(10) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS genre (
+CREATE TABLE IF NOT EXISTS genres (
     genre_id BIGSERIAL PRIMARY KEY NOT NULL,
     name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS film_genre (
-    film_id BIGINT NOT NULL REFERENCES film (film_id),
-    genre_id BIGINT NOT NULL REFERENCES genre (genre_id),
+    film_id BIGINT NOT NULL REFERENCES films (film_id),
+    genre_id BIGINT NOT NULL REFERENCES genres (genre_id),
     PRIMARY KEY (film_id, genre_id)
 );
 
 CREATE TABLE IF NOT EXISTS friendship (
-    inviter_id BIGINT NOT NULL REFERENCES `user` (user_id),
-    acceptor_id BIGINT NOT NULL REFERENCES `user` (user_id),
+    inviter_id BIGINT NOT NULL REFERENCES users (user_id),
+    acceptor_id BIGINT NOT NULL REFERENCES users (user_id),
     is_confirmed BOOLEAN NOT NULL,
     min_id BIGINT AS LEAST(inviter_id, acceptor_id),
     max_id BIGINT AS GREATEST(inviter_id, acceptor_id),
@@ -36,9 +36,9 @@ CREATE TABLE IF NOT EXISTS friendship (
     PRIMARY KEY (inviter_id, acceptor_id)
 );
 
-CREATE TABLE IF NOT EXISTS `like` (
-    user_id BIGINT NOT NULL REFERENCES `user` (user_id),
-    film_id BIGINT NOT NULL REFERENCES film (film_id),
+CREATE TABLE IF NOT EXISTS likes (
+    user_id BIGINT NOT NULL REFERENCES users (user_id),
+    film_id BIGINT NOT NULL REFERENCES films (film_id),
     created_at DATETIME NOT NULL,
     PRIMARY KEY (user_id, film_id)
 );

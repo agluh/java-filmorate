@@ -28,13 +28,13 @@ import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadModel {
 
     public static final String SELECT_USER =
-        "SELECT user_id, email, login, name, birthday FROM `user` WHERE user_id = ?";
+        "SELECT user_id, email, login, name, birthday FROM users WHERE user_id = ?";
     public static final String SELECT_USERS =
-        "SELECT user_id, email, login, name, birthday FROM `user`";
+        "SELECT user_id, email, login, name, birthday FROM users";
     public static final String INSERT_USER =
-        "INSERT INTO `user` (email, login, name, birthday) VALUES (?, ?, ?, ?)";
+        "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
     public static final String UPDATE_USER =
-        "UPDATE `user` SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?";
+        "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?";
     public static final String SELECT_FRIENDSHIP =
         "SELECT inviter_id, acceptor_id, is_confirmed FROM friendship"
             + " WHERE (inviter_id = ? AND acceptor_id = ?)"
@@ -46,7 +46,7 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
         "DELETE FROM friendship WHERE inviter_id = ? AND acceptor_id = ?";
     public static final String SELECT_FRIENDS =
         "SELECT user_id, email, login, name, birthday"
-        + " FROM `user` AS u"
+        + " FROM users AS u"
         + " WHERE u.user_id IN ("
         + "   (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?)"
         + "   UNION"
@@ -55,7 +55,7 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
         + " )";
     public static final String SELECT_COMMON_FRIENDS =
         "SELECT user_id, email, login, name, birthday"
-            + " FROM `user` AS u"
+            + " FROM users AS u"
             + " WHERE u.user_id IN ("
             + "   (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?)"
             + "   UNION"

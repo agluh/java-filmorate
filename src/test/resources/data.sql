@@ -10,7 +10,7 @@ VALUES
     (1, 3, TRUE),
     (2, 3, TRUE);
 
-INSERT INTO films (name, description, release_date, duration, mpaa)
+INSERT INTO films (name, description, release_date, duration, mpa)
 VALUES
     ('Matrix', 'Best film ever', '1999-10-14', 136, 'R'),
     ('The Batman', 'Is it a bird? Is it a plane? No, this is Batman!', '2022-03-04', 130, 'R');

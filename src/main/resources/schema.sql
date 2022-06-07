@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS films (
     description TEXT NOT NULL,
     release_date DATE NOT NULL,
     duration INT NOT NULL,
-    mpaa CHAR(10) NOT NULL
+    mpa CHAR(10) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS genres (

@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -44,6 +46,8 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
             + " f.duration, f.mpa"
             + " FROM films AS f"
             + " LEFT JOIN likes AS l on f.film_id = l.film_id"
+            + " LEFT JOIN film_genre AS fg on f.film_id = fg.film_id"
+            + " WHERE %s"
             + " GROUP BY f.film_id"
             + " ORDER BY COUNT(DISTINCT l.user_id) DESC"
             + " LIMIT ?";
@@ -52,7 +56,7 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
             + "VALUES (?, ?, ?, ?, ?)";
     public static final String UPDATE_FILM =
         "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa = ?"
-        + " WHERE film_id = ?";
+            + " WHERE film_id = ?";
     public static final String SELECT_LIKE =
         "SELECT user_id, film_id, created_at FROM likes WHERE user_id = ? AND film_id = ?";
     public static final String UPDATE_LIKE =
@@ -134,8 +138,35 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
     }
 
     @Override
-    public Collection<Film> getMostPopularFilms(int maxCount) {
-        return jdbcTemplate.query(SELECT_POPULAR_FILMS, this::mapRowToFilm, maxCount);
+    public Collection<Film> getMostPopularFilms(int limit) {
+        return jdbcTemplate.query(String.format(SELECT_POPULAR_FILMS, "1 = 1"),
+            this::mapRowToFilm, limit);
+    }
+
+    @Override
+    public Collection<Film> getMostPopularFilms(OptionalLong genreId, OptionalInt year, int limit) {
+        if (genreId.isPresent() && year.isPresent()) {
+            String sql = String.format(SELECT_POPULAR_FILMS,
+                "fg.genre_id = ? AND YEAR (f.release_date) = ?");
+            return jdbcTemplate.query(sql, this::mapRowToFilm,
+                genreId.getAsLong(), year.getAsInt(), limit);
+        }
+
+        if (genreId.isPresent()) {
+            String sql = String.format(SELECT_POPULAR_FILMS,
+                "fg.genre_id = ?");
+            return jdbcTemplate.query(sql, this::mapRowToFilm,
+                genreId.getAsLong(), limit);
+        }
+
+        if (year.isPresent()) {
+            String sql = String.format(SELECT_POPULAR_FILMS,
+                "YEAR (f.release_date) = ?");
+            return jdbcTemplate.query(sql, this::mapRowToFilm,
+                year.getAsInt(), limit);
+        }
+
+        return getMostPopularFilms(limit);
     }
 
     private void injectId(Film film, long id) {

@@ -7,6 +7,8 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +53,28 @@ class FilmDbStorageTest {
             .hasSize(1)
             .flatMap(Film::getId)
                 .isSubsetOf(2L);
+    }
+
+    @Test
+    void testGetMostPopularFilmsWithGenreFilter() {
+        Collection<Film> films = filmStorage.getMostPopularFilms(OptionalLong.of(1L),
+            OptionalInt.empty(), 10);
+
+        assertThat(films)
+            .hasSize(1)
+            .flatMap(Film::getId)
+            .isSubsetOf(2L);
+    }
+
+    @Test
+    void testGetMostPopularFilmsWithYearFilter() {
+        Collection<Film> films = filmStorage.getMostPopularFilms(OptionalLong.empty(),
+            OptionalInt.of(1999), 10);
+
+        assertThat(films)
+            .hasSize(1)
+            .flatMap(Film::getId)
+            .isSubsetOf(1L);
     }
 
     @Test

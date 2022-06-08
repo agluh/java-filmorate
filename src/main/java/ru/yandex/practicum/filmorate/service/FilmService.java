@@ -1,12 +1,15 @@
 package ru.yandex.practicum.filmorate.service;
 
 import java.util.Collection;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.storage.FilmReadModel;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.RecommendationStorage;
 
 /**
  * Provides service layer for films management.
@@ -15,11 +18,13 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final FilmReadModel filmReadModel;
+    private final RecommendationStorage recommendationStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, FilmReadModel filmReadModel) {
+    public FilmService(FilmStorage filmStorage, FilmReadModel filmReadModel, RecommendationStorage recommendationStorage) {
         this.filmStorage = filmStorage;
         this.filmReadModel = filmReadModel;
+        this.recommendationStorage = recommendationStorage;
     }
 
     public Film createFilm(Film film) {
@@ -44,6 +49,10 @@ public class FilmService {
 
         filmStorage.save(existedFilm);
         return existedFilm;
+    }
+
+    public List<Film> getRecommendations(Long id) {
+        return recommendationStorage.getRecommendations(id);
     }
 
     public Collection<Film> getAllFilms() {

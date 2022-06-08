@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -91,5 +93,10 @@ public class FilmController {
     public Collection<Film> getMostPopularFilms(
         @RequestParam(value = "count", defaultValue = "10") int count) {
         return filmService.getMostPopularFilms(count);
+    }
+
+    @GetMapping("/user/{id}/recommendations")
+    public ResponseEntity<List<Film>> getRecommendations(@PathVariable("id") Long id) {
+        return ResponseEntity.of(Optional.of(filmService.getRecommendations(id)));
     }
 }

@@ -25,6 +25,7 @@ import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.FilmReadModel;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.RecommendationStorage;
 import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 
 /**
@@ -32,7 +33,7 @@ import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
  */
 @Component
 @Primary
-public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
+public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel, RecommendationStorage {
 
     public static final String SELECT_FILM =
         "SELECT film_id, name, description, release_date, duration, mpa"
@@ -66,6 +67,18 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
         "DELETE FROM film_genre WHERE film_id = ?";
     public static final String INSERT_GENRE =
         "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
+
+    public static final String SELECT_RECOMMENDATIONS = "SELECT * FROM films " +
+            "WHERE film_id " +
+            "          IN (SELECT DISTINCT l.film_id FROM likes AS l " +
+            "                  WHERE l.user_id " +
+            "                      IN (SELECT l.user_id FROM likes AS l " +
+            "                          WHERE l.film_id " +
+            "                              IN (SELECT f.film_id FROM films AS f " +
+            "                                        RIGHT JOIN likes AS l ON f.film_id = l.film_id " +
+            "                                  WHERE l.user_id = ?)" +
+            "                              AND l.user_id <> ?)" +
+            "                    AND l.film_id NOT IN (SELECT l.film_id FROM likes AS l WHERE l.user_id = ?));";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -136,6 +149,11 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
     @Override
     public Collection<Film> getMostPopularFilms(int maxCount) {
         return jdbcTemplate.query(SELECT_POPULAR_FILMS, this::mapRowToFilm, maxCount);
+    }
+
+    @Override
+    public List<Film> getRecommendations(Long id) {
+        return jdbcTemplate.query(SELECT_RECOMMENDATIONS, this::mapRowToFilm,id,id,id);
     }
 
     private void injectId(Film film, long id) {

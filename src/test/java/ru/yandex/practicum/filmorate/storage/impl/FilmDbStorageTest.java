@@ -42,7 +42,7 @@ class FilmDbStorageTest {
     void testGetAll() {
         Collection<Film> films = filmStorage.getAll();
 
-        assertThat(films).hasSize(2);
+        assertThat(films).hasSize(3);
     }
 
     @Test
@@ -50,10 +50,44 @@ class FilmDbStorageTest {
         Collection<Film> films = filmStorage.getMostPopularFilms(1);
 
         assertThat(films)
-            .hasSize(1)
-            .flatMap(Film::getId)
-                .isSubsetOf(2L);
+                .hasSize(1)
+                .flatMap(Film::getId)
+            .isSubsetOf(2L);
     }
+
+    @Test
+    void getFilmsBySearchFromDB() {
+        Collection<Film> films = filmStorage.getFilmsBySearch("man");
+        assertThat(films)
+                .hasSize(2);
+        films.forEach((c) -> System.out.println(c.getName()));
+    }
+
+    /**
+     * It was agreed to delete InMemory implementation in the next steps
+     */
+    @Test
+    @Deprecated
+
+    void getFilmsBySearchFromMemory() {
+        InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
+        inMemoryFilmStorage.save(new Film(null, "Matrix", "Best film ever",
+            LocalDate.of(1999, 10, 14), 136, MpaRating.R,
+            new HashSet<>()));
+        inMemoryFilmStorage.save(new Film(null, "The Batman",
+            "Is it a bird? Is it a plane? No, this is Batman!",
+            LocalDate.of(2022, 3, 4), 130, MpaRating.R,
+            new HashSet<>()));
+        inMemoryFilmStorage.save(new Film(null, "Rain Man", "Must see",
+            LocalDate.of(1988, 12, 16), 134, MpaRating.R,
+            new HashSet<>()));
+
+        Collection<Film> films = inMemoryFilmStorage.getFilmsBySearch("man");
+        assertThat(films)
+                .hasSize(2);
+        films.forEach((c) -> System.out.println(c.getName()));
+    }
+
 
     @Test
     void testGetMostPopularFilmsWithGenreFilter() {
@@ -80,8 +114,8 @@ class FilmDbStorageTest {
     @Test
     void testSaveFilm() {
         Film film = new Film(null, "Name", "Description",
-            LocalDate.of(2022, 4, 22), 120, MpaRating.G,
-            new HashSet<>());
+                LocalDate.of(2022, 4, 22), 120, MpaRating.G,
+                new HashSet<>());
 
         filmStorage.save(film);
 
@@ -90,10 +124,10 @@ class FilmDbStorageTest {
         Optional<Film> filmOptional = filmStorage.getFilm(film.getId());
 
         assertThat(filmOptional)
-            .isPresent()
-            .hasValueSatisfying(f ->
-                assertThat(f).isEqualTo(film)
-            );
+                .isPresent()
+                .hasValueSatisfying(f ->
+                        assertThat(f).isEqualTo(film)
+                );
     }
 
     @Test
@@ -106,10 +140,10 @@ class FilmDbStorageTest {
         Optional<Like> likeOptional = filmStorage.getLikeMetadataByUserAndFilm(3, 2);
 
         assertThat(likeOptional)
-            .isPresent()
-            .hasValueSatisfying(l ->
-                assertThat(l).isEqualTo(like)
-            );
+                .isPresent()
+                .hasValueSatisfying(l ->
+                        assertThat(l).isEqualTo(like)
+                );
     }
 
     @Test

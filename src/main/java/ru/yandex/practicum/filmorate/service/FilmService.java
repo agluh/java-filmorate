@@ -64,4 +64,13 @@ public class FilmService {
         return filmStorage.getFilm(filmId).orElseThrow(() ->
             new FilmNotFoundException(filmId));
     }
+
+    public Collection<Film> getFilmsBySearch (String query, String by) {
+       if (query != null && by.equals("title")) {
+           return filmReadModel.getFilmsBySearch(query);
+       } else {
+           return filmReadModel.getMostPopularFilms(Integer.MAX_VALUE);
+       }
+    }
+
 }

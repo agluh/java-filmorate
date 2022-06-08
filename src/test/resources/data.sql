@@ -13,7 +13,8 @@ VALUES
 INSERT INTO films (name, description, release_date, duration, mpa)
 VALUES
     ('Matrix', 'Best film ever', '1999-10-14', 136, 'R'),
-    ('The Batman', 'Is it a bird? Is it a plane? No, this is Batman!', '2022-03-04', 130, 'R');
+    ('The Batman', 'Is it a bird? Is it a plane? No, this is Batman!', '2022-03-04', 130, 'R'),
+    ('Rain Man', 'Must see', '1988-12-16', 134, 'R');
 
 INSERT INTO likes (user_id, film_id, created_at)
 VALUES

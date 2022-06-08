@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import java.util.Collection;
 import javax.validation.Valid;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -93,5 +94,11 @@ public class FilmController {
             @RequestParam(value = "genreId", required = false) Long genreId,
             @RequestParam(value = "year", required = false) Integer year) {
         return filmService.getMostPopularFilms(genreId, year, limit);
+    }
+
+    @GetMapping("/search")
+    public Collection<Film> getFilmsBySearch(
+            @RequestParam String query, @RequestParam String by) {
+        return filmService.getFilmsBySearch(query, by);
     }
 }

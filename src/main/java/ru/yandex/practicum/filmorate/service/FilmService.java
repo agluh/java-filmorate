@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.storage.FilmReadModel;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.RecommendationStorage;
 
 /**
  * Provides service layer for films management.
@@ -18,13 +17,11 @@ import ru.yandex.practicum.filmorate.storage.RecommendationStorage;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final FilmReadModel filmReadModel;
-    private final RecommendationStorage recommendationStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, FilmReadModel filmReadModel, RecommendationStorage recommendationStorage) {
+    public FilmService(FilmStorage filmStorage, FilmReadModel filmReadModel) {
         this.filmStorage = filmStorage;
         this.filmReadModel = filmReadModel;
-        this.recommendationStorage = recommendationStorage;
     }
 
     public Film createFilm(Film film) {
@@ -51,8 +48,8 @@ public class FilmService {
         return existedFilm;
     }
 
-    public List<Film> getRecommendations(Long id) {
-        return recommendationStorage.getRecommendations(id);
+    public Collection<Film> getRecommendations(Long userId) {
+        return filmReadModel.getRecommendationsForUser(userId);
     }
 
     public Collection<Film> getAllFilms() {

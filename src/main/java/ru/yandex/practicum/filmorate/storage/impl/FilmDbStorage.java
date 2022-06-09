@@ -1,17 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
-import java.lang.reflect.Field;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,15 +13,23 @@ import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.FilmReadModel;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
-import ru.yandex.practicum.filmorate.storage.RecommendationStorage;
 import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
+
+import java.lang.reflect.Field;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.*;
 
 /**
  * DB based implementation of film storage.
  */
 @Component
 @Primary
-public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel, RecommendationStorage {
+public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel{
 
     public static final String SELECT_FILM =
         "SELECT film_id, name, description, release_date, duration, mpa"
@@ -152,8 +148,8 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel, R
     }
 
     @Override
-    public List<Film> getRecommendations(Long id) {
-        return jdbcTemplate.query(SELECT_RECOMMENDATIONS, this::mapRowToFilm,id,id,id);
+    public Collection<Film> getRecommendationsForUser(Long userId) {
+        return jdbcTemplate.query(SELECT_RECOMMENDATIONS, this::mapRowToFilm,userId,userId,userId);
     }
 
     private void injectId(Film film, long id) {

@@ -96,7 +96,7 @@ public class FilmController {
     }
 
     @GetMapping("/user/{id}/recommendations")
-    public ResponseEntity<List<Film>> getRecommendations(@PathVariable("id") Long id) {
-        return ResponseEntity.of(Optional.of(filmService.getRecommendations(id)));
+    public Collection<Film> getRecommendationsForUser(@PathVariable("id") Long userId) {
+        return filmService.getRecommendations(userId);
     }
 }

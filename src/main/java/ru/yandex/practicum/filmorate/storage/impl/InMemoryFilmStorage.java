@@ -86,6 +86,11 @@ public class InMemoryFilmStorage implements FilmStorage, LikeStorage, FilmReadMo
             .collect(Collectors.toList());
     }
 
+    @Override
+    public Collection<Film> getRecommendationsForUser(Long userId) {
+        return null;
+    }
+
     private void injectId(Film film) throws NoSuchFieldException, IllegalAccessException {
         Field idField = Film.class.getDeclaredField("id");
         idField.setAccessible(true);

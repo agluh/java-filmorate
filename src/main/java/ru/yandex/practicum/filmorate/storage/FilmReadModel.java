@@ -10,4 +10,6 @@ public interface FilmReadModel {
     Collection<Film> getAll();
 
     Collection<Film> getMostPopularFilms(int maxCount);
+
+    Collection<Film> getRecommendationsForUser(Long userId);
 }

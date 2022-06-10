@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
 import java.util.Collection;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -50,8 +52,12 @@ public class FilmService {
         return filmReadModel.getAll();
     }
 
-    public Collection<Film> getMostPopularFilms(int maxCount) {
-        return filmReadModel.getMostPopularFilms(maxCount);
+    public Collection<Film> getMostPopularFilms(Long genreId, Integer year, int limit) {
+        return filmReadModel.getMostPopularFilms(
+            genreId != null ? OptionalLong.of(genreId) : OptionalLong.empty(),
+            year != null ? OptionalInt.of(year) : OptionalInt.empty(),
+            limit
+        );
     }
 
     public Film getFilm(long filmId) {

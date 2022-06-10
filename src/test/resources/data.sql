@@ -19,3 +19,8 @@ INSERT INTO likes (user_id, film_id, created_at)
 VALUES
     (1, 2, '2021-03-08T01:00:01.000000800'),
     (2, 2, '2022-05-11T01:00:01.000000800');
+
+INSERT INTO events (user_id, entity_id, event_type, operation, occurred_on)
+VALUES
+    (1, 2, 'LIKE', 'ADD', '2021-03-08T01:00:01.000000800'),
+    (2, 2, 'FRIEND', 'ADD', '2022-05-11T01:00:01.000000800');

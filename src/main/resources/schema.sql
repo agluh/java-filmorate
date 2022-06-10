@@ -42,3 +42,12 @@ CREATE TABLE IF NOT EXISTS likes (
     created_at DATETIME NOT NULL,
     PRIMARY KEY (user_id, film_id)
 );
+
+CREATE TABLE IF NOT EXISTS events (
+    event_id BIGSERIAL PRIMARY KEY NOT NULL,
+    user_id BIGINT NOT NULL REFERENCES users (user_id),
+    entity_id BIGINT NOT NULL,
+    event_type VARCHAR(30),
+    operation VARCHAR(30),
+    occurred_on DATETIME NOT NULL
+);

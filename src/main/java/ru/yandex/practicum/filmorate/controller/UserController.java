@@ -4,6 +4,8 @@ import java.util.Collection;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -97,5 +99,11 @@ public class UserController {
     @GetMapping("/{id}/feed")
     public Collection<Event> getEventsOfUser(@PathVariable("id") long userId) {
         return userService.getEventsOfUser(userId);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable("id") long userId) {
+        userService.deleteUser(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }

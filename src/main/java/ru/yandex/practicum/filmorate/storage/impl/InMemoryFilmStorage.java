@@ -61,6 +61,11 @@ public class InMemoryFilmStorage implements FilmStorage, LikeStorage, FilmReadMo
     }
 
     @Override
+    public void delete(long id) {
+        films.remove(id);
+    }
+
+    @Override
     public void delete(Like like) {
         index.remove(ComposedKey.from(like));
         filmPopularity.merge(like.getFilmId(), -1, Integer::sum);

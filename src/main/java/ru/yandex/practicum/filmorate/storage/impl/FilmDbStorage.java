@@ -61,7 +61,9 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
             + "VALUES (?, ?, ?, ?, ?)";
     public static final String UPDATE_FILM =
         "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa = ?"
-            + " WHERE film_id = ?";
+        + " WHERE film_id = ?";
+
+    private static final String DELETE_FILM = "DELETE FROM films WHERE film_id = ?";
     public static final String SELECT_LIKE =
         "SELECT user_id, film_id, created_at FROM likes WHERE user_id = ? AND film_id = ?";
     public static final String UPDATE_LIKE =
@@ -119,6 +121,11 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
                 jdbcTemplate.update(INSERT_GENRE, film.getId(), genre.getId());
             }
         }
+    }
+
+    @Override
+    public void delete(long id) {
+        jdbcTemplate.update(DELETE_FILM, id);
     }
 
     @Override

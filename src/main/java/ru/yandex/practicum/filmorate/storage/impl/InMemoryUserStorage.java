@@ -49,6 +49,11 @@ public class InMemoryUserStorage implements UserStorage, FriendshipStorage, User
     }
 
     @Override
+    public void delete(long id) {
+        users.remove(id);
+    }
+
+    @Override
     public void save(Friendship friendship) {
         ComposedKey key = ComposedKey.from(friendship);
         composedIndex.put(key, friendship);

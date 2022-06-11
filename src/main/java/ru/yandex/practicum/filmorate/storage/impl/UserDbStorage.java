@@ -35,6 +35,9 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
         "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
     public static final String UPDATE_USER =
         "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?";
+
+    private static final String DELETE_USER =
+            "DELETE FROM users WHERE user_id = ?";
     public static final String SELECT_FRIENDSHIP =
         "SELECT inviter_id, acceptor_id, is_confirmed FROM friendship"
             + " WHERE (inviter_id = ? AND acceptor_id = ?)"
@@ -101,6 +104,11 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
             jdbcTemplate.update(UPDATE_USER, user.getEmail(), user.getLogin(),
                 user.getName(), Date.valueOf(user.getBirthday()), user.getId());
         }
+    }
+
+    @Override
+    public void delete(long id) {
+        jdbcTemplate.update(DELETE_USER, id);
     }
 
     @Override

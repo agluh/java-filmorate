@@ -101,4 +101,10 @@ public class FilmController {
             @RequestParam String query, @RequestParam String by) {
         return filmService.getFilmsBySearch(query, by);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteFilm(@PathVariable("id") long filmId) {
+        filmService.deleteFilm(filmId);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
 }

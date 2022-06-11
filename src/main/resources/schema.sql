@@ -21,14 +21,14 @@ CREATE TABLE IF NOT EXISTS genres (
 );
 
 CREATE TABLE IF NOT EXISTS film_genre (
-    film_id BIGINT NOT NULL REFERENCES films (film_id),
-    genre_id BIGINT NOT NULL REFERENCES genres (genre_id),
+    film_id BIGINT NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
+    genre_id BIGINT NOT NULL REFERENCES genres (genre_id) ON DELETE RESTRICT,
     PRIMARY KEY (film_id, genre_id)
 );
 
 CREATE TABLE IF NOT EXISTS friendship (
-    inviter_id BIGINT NOT NULL REFERENCES users (user_id),
-    acceptor_id BIGINT NOT NULL REFERENCES users (user_id),
+    inviter_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+    acceptor_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     is_confirmed BOOLEAN NOT NULL,
     min_id BIGINT AS LEAST(inviter_id, acceptor_id),
     max_id BIGINT AS GREATEST(inviter_id, acceptor_id),
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS friendship (
 
 CREATE TABLE IF NOT EXISTS likes (
     user_id BIGINT NOT NULL REFERENCES users (user_id),
-    film_id BIGINT NOT NULL REFERENCES films (film_id),
+    film_id BIGINT NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
     created_at DATETIME NOT NULL,
     PRIMARY KEY (user_id, film_id)
 );

@@ -16,7 +16,6 @@ import java.util.OptionalLong;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -32,7 +31,6 @@ import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
  * DB based implementation of film storage.
  */
 @Component
-@Primary
 public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
 
     public static final String SELECT_FILM =

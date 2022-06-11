@@ -63,32 +63,6 @@ class FilmDbStorageTest {
         films.forEach((c) -> System.out.println(c.getName()));
     }
 
-    /**
-     * It was agreed to delete InMemory implementation in the next steps
-     */
-    @Test
-    @Deprecated
-
-    void getFilmsBySearchFromMemory() {
-        InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
-        inMemoryFilmStorage.save(new Film(null, "Matrix", "Best film ever",
-            LocalDate.of(1999, 10, 14), 136, MpaRating.R,
-            new HashSet<>()));
-        inMemoryFilmStorage.save(new Film(null, "The Batman",
-            "Is it a bird? Is it a plane? No, this is Batman!",
-            LocalDate.of(2022, 3, 4), 130, MpaRating.R,
-            new HashSet<>()));
-        inMemoryFilmStorage.save(new Film(null, "Rain Man", "Must see",
-            LocalDate.of(1988, 12, 16), 134, MpaRating.R,
-            new HashSet<>()));
-
-        Collection<Film> films = inMemoryFilmStorage.getFilmsBySearch("man");
-        assertThat(films)
-                .hasSize(2);
-        films.forEach((c) -> System.out.println(c.getName()));
-    }
-
-
     @Test
     void testGetMostPopularFilmsWithGenreFilter() {
         Collection<Film> films = filmStorage.getMostPopularFilms(OptionalLong.of(1L),

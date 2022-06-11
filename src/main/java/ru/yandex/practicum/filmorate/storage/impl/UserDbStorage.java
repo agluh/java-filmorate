@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -25,7 +24,6 @@ import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
  * DB based implementation of user storage.
  */
 @Repository
-@Primary
 public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadModel {
 
     public static final String SELECT_USER =

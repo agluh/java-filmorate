@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.events.UserLeavedReview;
+import ru.yandex.practicum.filmorate.events.UserRemovedReview;
 import ru.yandex.practicum.filmorate.events.UserUpdatedReview;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.ReviewLike;
@@ -78,9 +79,9 @@ public class ReviewService {
     }
 
     public void delete(long reviewId) {
-        ensureReviewExists(reviewId);
-        reviewStorage.delete(reviewId);
-        //TODO eventPublisher.publishEvent(new UserRemovedReview(ZonedDateTime.now(), review.getUserId(), review.getId()));
+        Review review = getReview(reviewId);
+        reviewStorage.delete(review.getId());
+        eventPublisher.publishEvent(new UserRemovedReview(ZonedDateTime.now(), review.getUserId(), review.getId()));
     }
 
     public void likeReview(long userId, long reviewId) {

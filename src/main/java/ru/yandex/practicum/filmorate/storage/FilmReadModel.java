@@ -20,4 +20,6 @@ public interface FilmReadModel {
             int limit) {
         throw new RuntimeException("not implemented");
     }
+
+    Collection<Film> getFilmsBySearch(String query);
 }

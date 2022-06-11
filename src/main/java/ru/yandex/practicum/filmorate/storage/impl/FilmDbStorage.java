@@ -51,6 +51,11 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
             + " GROUP BY f.film_id"
             + " ORDER BY COUNT(DISTINCT l.user_id) DESC"
             + " LIMIT ?";
+
+    public static final String SELECT_FILMS_BY_NAME_SUBSTRING =
+        "SELECT film_id, name, description, " +
+            "release_date, duration, mpa FROM films WHERE LOWER(name) LIKE ?";
+
     public static final String INSERT_FILM =
         "INSERT INTO films (name, description, release_date, duration, mpa) "
             + "VALUES (?, ?, ?, ?, ?)";
@@ -167,6 +172,16 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
         }
 
         return getMostPopularFilms(limit);
+    }
+
+    /**
+     * @see <a
+     * href="https://stackoverflow.com/questions/55499110/jdbc-template-giving-error-for-query-using-like"></a>
+     */
+    @Override
+    public Collection<Film> getFilmsBySearch(String query) {
+        return jdbcTemplate.query(SELECT_FILMS_BY_NAME_SUBSTRING, this::mapRowToFilm, "%"
+            + query.toLowerCase() + "%");
     }
 
     private void injectId(Film film, long id) {

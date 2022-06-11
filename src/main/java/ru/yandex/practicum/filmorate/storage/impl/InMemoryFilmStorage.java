@@ -24,6 +24,7 @@ import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
  */
 @Component
 public class InMemoryFilmStorage implements FilmStorage, LikeStorage, FilmReadModel {
+
     private final Map<Long, Film> films = new HashMap<>();
     private final Map<ComposedKey, Like> index = new HashMap<>();
     private final Map<Long, Integer> filmPopularity = new HashMap<>();
@@ -103,9 +104,17 @@ public class InMemoryFilmStorage implements FilmStorage, LikeStorage, FilmReadMo
             .collect(Collectors.toList());
     }
 
+    @Override
+    public Collection<Film> getFilmsBySearch(String query) {
+        return films.values().stream()
+            .filter(e -> e.getName().toLowerCase().contains(query.toLowerCase()))
+            .collect(Collectors.toList());
+    }
+
     @EqualsAndHashCode
     @AllArgsConstructor
     private static class ComposedKey {
+
         final long userId;
         final long filmId;
 
@@ -117,6 +126,7 @@ public class InMemoryFilmStorage implements FilmStorage, LikeStorage, FilmReadMo
     @AllArgsConstructor
     @Getter
     private static class RatedFilm implements Comparable<RatedFilm> {
+
         Film film;
         int rate;
 

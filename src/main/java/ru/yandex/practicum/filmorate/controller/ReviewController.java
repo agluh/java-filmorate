@@ -1,17 +1,24 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import java.util.Collection;
+import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 import ru.yandex.practicum.filmorate.validation.ValidationMarker;
-
-import javax.validation.Valid;
-import java.util.Collection;
 
 @Validated
 @RestController
@@ -66,7 +73,8 @@ public class ReviewController {
      * Like review by user.
      */
     @PutMapping("/{id}/like/{userId}/")
-    public ResponseEntity<?> likeReview(@PathVariable("id") long reviewId, @PathVariable long userId) {
+    public ResponseEntity<?> likeReview(@PathVariable("id") long reviewId,
+            @PathVariable long userId) {
         log.info("User {} liked review {}", userId, reviewId);
         reviewService.likeReview(userId, reviewId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
@@ -76,21 +84,24 @@ public class ReviewController {
      * Dislike review by user.
      */
     @PutMapping("/{id}/dislike/{userId}/")
-    public ResponseEntity<?> dislikeReview(@PathVariable("id") long reviewId, @PathVariable long userId) {
+    public ResponseEntity<?> dislikeReview(@PathVariable("id") long reviewId,
+            @PathVariable long userId) {
         log.info("User {} disliked review {}", userId, reviewId);
         reviewService.dislikeReview(userId, reviewId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @DeleteMapping("/{id}/like/{userId}/")
-    public ResponseEntity<?> deleteLikeReview(@PathVariable("id") long reviewId, @PathVariable long userId) {
+    public ResponseEntity<?> deleteLikeReview(@PathVariable("id") long reviewId,
+            @PathVariable long userId) {
         log.info("User {} deleted like on review {}", userId, reviewId);
         reviewService.deleteMark(userId, reviewId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @DeleteMapping("/{id}/dislike/{userId}/")
-    public ResponseEntity<?> deleteDislikeReview(@PathVariable("id") long reviewId, @PathVariable long userId) {
+    public ResponseEntity<?> deleteDislikeReview(@PathVariable("id") long reviewId,
+            @PathVariable long userId) {
         log.info("User {} deleted dislike on review {}", userId, reviewId);
         reviewService.deleteMark(userId, reviewId);
         return ResponseEntity.status(HttpStatus.OK).body(null);

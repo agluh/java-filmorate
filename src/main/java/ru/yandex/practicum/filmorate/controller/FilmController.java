@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller;
 
 import java.util.Collection;
 import javax.validation.Valid;
-
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -24,7 +23,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.model.MpaRating;
-import ru.yandex.practicum.filmorate.storage.*;
+import ru.yandex.practicum.filmorate.storage.FilmReadModel;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 
 /**
@@ -50,15 +51,15 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
             + " LIMIT ?";
 
     public static final String SELECT_FILMS_BY_NAME_SUBSTRING =
-        "SELECT film_id, name, description, " +
-            "release_date, duration, mpa FROM films WHERE LOWER(name) LIKE ?";
+        "SELECT film_id, name, description, "
+            + "release_date, duration, mpa FROM films WHERE LOWER(name) LIKE ?";
 
     public static final String INSERT_FILM =
         "INSERT INTO films (name, description, release_date, duration, mpa) "
             + "VALUES (?, ?, ?, ?, ?)";
     public static final String UPDATE_FILM =
         "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa = ?"
-        + " WHERE film_id = ?";
+            + " WHERE film_id = ?";
 
     private static final String DELETE_FILM = "DELETE FROM films WHERE film_id = ?";
     public static final String SELECT_LIKE =
@@ -74,19 +75,6 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
         "DELETE FROM film_genre WHERE film_id = ?";
     public static final String INSERT_GENRE =
         "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
-
-
-    public static final String SELECT_UNUSEFUL_REVIEW_BY_ID =
-            "SELECT COUNT(user_id) FROM useful_rates " +
-                    "WHERE is_useful <> true AND review_id = ? " +
-                    "GROUP BY review_id";
-
-    public static final String UPDATE_IS_USEFUL =
-            "MERGE INTO useful_rates (review_id, user_id, is_useful) KEY (review_id, user_id) VALUES (?, ?, ?)";
-
-    public static final String DELETE_REVIEW_LIKE =
-            "DELETE FROM USEFUL_RATES WHERE REVIEW_ID = ? AND USER_ID = ?";
-
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -107,7 +95,7 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
 
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(INSERT_FILM,
-                        new String[]{"film_id"});
+                    new String[]{"film_id"});
                 ps.setString(1, film.getName());
                 ps.setString(2, film.getDescription());
                 ps.setDate(3, Date.valueOf(film.getReleaseDate()));
@@ -119,8 +107,8 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
             injectId(film, keyHolder.getKey().longValue());
         } else {
             jdbcTemplate.update(UPDATE_FILM, film.getName(), film.getDescription(),
-                    Date.valueOf(film.getReleaseDate()), film.getDuration(),
-                    film.getMpa().name(), film.getId());
+                Date.valueOf(film.getReleaseDate()), film.getDuration(),
+                film.getMpa().name(), film.getId());
         }
 
         jdbcTemplate.update(DELETE_GENRES, film.getId());
@@ -151,7 +139,7 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
     @Override
     public Optional<Like> getLikeMetadataByUserAndFilm(long userId, long filmId) {
         return jdbcTemplate.query(SELECT_LIKE, this::mapRowToLike, userId, filmId)
-                .stream().findAny();
+            .stream().findAny();
     }
 
     @Override
@@ -192,8 +180,9 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
     }
 
     /**
-     * @see <a
-     * href="https://stackoverflow.com/questions/55499110/jdbc-template-giving-error-for-query-using-like"></a>
+     * Performs search by film name.
+     *
+     * @see <a href="https://stackoverflow.com/questions/55499110">related issue</a>
      */
     @Override
     public Collection<Film> getFilmsBySearch(String query) {
@@ -234,9 +223,9 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
 
     private Like mapRowToLike(ResultSet rs, int rowNum) throws SQLException {
         return new Like(
-                rs.getLong("user_id"),
-                rs.getLong("film_id"),
-                rs.getObject("created_at", Instant.class).atZone(ZoneId.of("UTC"))
+            rs.getLong("user_id"),
+            rs.getLong("film_id"),
+            rs.getObject("created_at", Instant.class).atZone(ZoneId.of("UTC"))
         );
     }
 }

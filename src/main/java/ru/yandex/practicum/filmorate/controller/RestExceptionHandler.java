@@ -5,7 +5,6 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import javax.validation.ConstraintViolationException;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -90,8 +89,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handle errors when entity not found.
      */
-    @ExceptionHandler({UserNotFoundException.class, FilmNotFoundException.class,ReviewNotFoundException.class,
-        GenreNotFoundException.class, MpaRatingNotFoundException.class})
+    @ExceptionHandler({
+        UserNotFoundException.class, FilmNotFoundException.class,
+        ReviewNotFoundException.class, GenreNotFoundException.class,
+        MpaRatingNotFoundException.class})
     protected ResponseEntity<Object> handleDaoException(RuntimeException ex) {
         ApiError apiError = new ApiError(NOT_FOUND);
         apiError.setMessage("Entity not found");

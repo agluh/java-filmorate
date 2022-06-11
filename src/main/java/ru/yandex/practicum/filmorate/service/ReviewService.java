@@ -1,5 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
+import java.time.ZonedDateTime;
+import java.util.Collection;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -11,14 +14,15 @@ import ru.yandex.practicum.filmorate.model.ReviewLike;
 import ru.yandex.practicum.filmorate.service.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.service.exception.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.service.exception.UserNotFoundException;
-import ru.yandex.practicum.filmorate.storage.*;
-
-import javax.transaction.Transactional;
-import java.time.ZonedDateTime;
-import java.util.Collection;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.ReviewLikeStorage;
+import ru.yandex.practicum.filmorate.storage.ReviewReadModel;
+import ru.yandex.practicum.filmorate.storage.ReviewStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 @Service
 public class ReviewService {
+
     private final ReviewStorage reviewStorage;
     private final ReviewLikeStorage reviewLikeStorage;
     private final UserStorage userStorage;
@@ -29,8 +33,8 @@ public class ReviewService {
 
     @Autowired
     public ReviewService(ReviewStorage reviewStorage, UserStorage userStorage,
-                         FilmStorage filmStorage, ReviewReadModel reviewReadModel,
-                         ReviewLikeStorage reviewLikeStorage, ApplicationEventPublisher eventPublisher) {
+            FilmStorage filmStorage, ReviewReadModel reviewReadModel,
+            ReviewLikeStorage reviewLikeStorage, ApplicationEventPublisher eventPublisher) {
         this.reviewStorage = reviewStorage;
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
@@ -41,12 +45,12 @@ public class ReviewService {
 
     public Review getReview(long reviewId) {
         return reviewStorage.getReview(reviewId).orElseThrow(() ->
-                new ReviewNotFoundException(reviewId));
+            new ReviewNotFoundException(reviewId));
     }
 
     public Collection<Review> getAllReviewsByFilmId(long reviewId, int count) {
         ensureFilmExists(reviewId);
-        return reviewReadModel.getReviewsByFilmId(reviewId,count);
+        return reviewReadModel.getReviewsByFilmId(reviewId, count);
     }
 
     @Transactional
@@ -56,7 +60,8 @@ public class ReviewService {
 
         reviewStorage.save(review);
 
-        eventPublisher.publishEvent(new UserLeavedReview(ZonedDateTime.now(), review.getUserId(), review.getId()));
+        eventPublisher.publishEvent(new UserLeavedReview(ZonedDateTime.now(),
+            review.getUserId(), review.getId()));
         return review;
     }
 
@@ -67,21 +72,23 @@ public class ReviewService {
 
         long id = review.getId();
         Review existedReview = reviewStorage.getReview(id).orElseThrow(() ->
-                new ReviewNotFoundException(id));
+            new ReviewNotFoundException(id));
         existedReview.setUserId(review.getUserId());
         existedReview.setFilmId(review.getFilmId());
         existedReview.setPositive(review.isPositive());
         existedReview.setContent(review.getContent());
 
         reviewStorage.save(existedReview);
-        eventPublisher.publishEvent(new UserUpdatedReview(ZonedDateTime.now(), review.getUserId(), review.getId()));
+        eventPublisher.publishEvent(new UserUpdatedReview(ZonedDateTime.now(),
+            review.getUserId(), review.getId()));
         return existedReview;
     }
 
     public void delete(long reviewId) {
         Review review = getReview(reviewId);
         reviewStorage.delete(review.getId());
-        eventPublisher.publishEvent(new UserRemovedReview(ZonedDateTime.now(), review.getUserId(), review.getId()));
+        eventPublisher.publishEvent(new UserRemovedReview(ZonedDateTime.now(),
+            review.getUserId(), review.getId()));
     }
 
     public void likeReview(long userId, long reviewId) {
@@ -105,16 +112,16 @@ public class ReviewService {
 
     private void ensureFilmExists(long filmId) {
         filmStorage.getFilm(filmId).orElseThrow(() ->
-                new FilmNotFoundException(filmId));
+            new FilmNotFoundException(filmId));
     }
 
     private void ensureUserExists(long userId) {
         userStorage.getUser(userId).orElseThrow(() ->
-                new UserNotFoundException(userId));
+            new UserNotFoundException(userId));
     }
 
     private void ensureReviewExists(long reviewId) {
         reviewStorage.getReview(reviewId).orElseThrow(() ->
-                new ReviewNotFoundException(reviewId));
+            new ReviewNotFoundException(reviewId));
     }
 }

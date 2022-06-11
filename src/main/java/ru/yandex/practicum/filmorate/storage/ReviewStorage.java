@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import ru.yandex.practicum.filmorate.model.Review;
-
 import java.util.Optional;
+import ru.yandex.practicum.filmorate.model.Review;
 
 public interface ReviewStorage {
     Optional<Review> getReview(long id);

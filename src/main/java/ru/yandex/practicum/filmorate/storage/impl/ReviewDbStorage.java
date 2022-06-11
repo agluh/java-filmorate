@@ -1,5 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
+import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -12,60 +18,44 @@ import ru.yandex.practicum.filmorate.storage.ReviewReadModel;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 
-import java.lang.reflect.Field;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Optional;
-
 @Repository
 public class ReviewDbStorage implements ReviewStorage, ReviewReadModel, ReviewLikeStorage {
     private final JdbcTemplate jdbcTemplate;
 
     private static final String SELECT_REVIEW =
-                    "SELECT r.review_id, r.user_id, r.film_id,r.is_positive,r.content, " +
-                    "CASE WHEN SUM(rate.rate) IS NULL THEN 0 ELSE SUM(rate.rate) END AS useful " +
-                    "FROM reviews AS r " +
-                    "LEFT JOIN (SELECT COUNT(user_id) AS rate, review_id " +
-                    "           FROM review_likes " +
-                    "           WHERE is_useful = TRUE " +
-                    "           GROUP BY review_id " +
-                    "           UNION ALL " +
-                    "           SELECT -1*COUNT(user_id) AS rate, review_id " +
-                    "           FROM review_likes " +
-                    "           WHERE is_useful = FALSE " +
-                    "           GROUP BY review_id) AS rate ON r.review_id = rate.review_id " +
-                    "WHERE r.review_id = ? " +
-                    "GROUP BY r.review_id";
+        "SELECT r.review_id, r.user_id, r.film_id,r.is_positive,r.content, "
+            + "CASE WHEN SUM(rate.rate) IS NULL THEN 0 ELSE SUM(rate.rate) END AS useful "
+            + "FROM reviews AS r " + "LEFT JOIN (SELECT COUNT(user_id) AS rate, review_id "
+            + "           FROM review_likes " + "           WHERE is_useful = TRUE "
+            + "           GROUP BY review_id " + "           UNION ALL "
+            + "           SELECT -1*COUNT(user_id) AS rate, review_id "
+            + "           FROM review_likes "
+            + "           GROUP BY review_id) AS rate ON r.review_id = rate.review_id "
+            + "           WHERE is_useful = FALSE " + "WHERE r.review_id = ? "
+            + "GROUP BY r.review_id";
 
     private static final String SELECT_REVIEWS_BY_FILM =
-                    "SELECT r.review_id, r.user_id, r.film_id,r.is_positive,r.content, " +
-                    "CASE WHEN SUM(rate.rate) IS NULL THEN 0 ELSE SUM(rate.rate) END AS useful " +
-                    "FROM reviews AS r " +
-                    "LEFT JOIN (SELECT COUNT(user_id) AS rate, review_id " +
-                    "           FROM review_likes " +
-                    "           WHERE is_useful = TRUE " +
-                    "           GROUP BY review_id " +
-                    "           UNION ALL " +
-                    "           SELECT -1*COUNT(user_id) as rate, review_id " +
-                    "           FROM review_likes " +
-                    "           WHERE is_useful = FALSE " +
-                    "           GROUP BY REVIEW_ID) AS rate ON r.review_id = rate.review_id " +
-                    "WHERE r.film_id = ? " +
-                    "GROUP BY r.review_id " +
-                    "ORDER BY useful DESC " +
-                    "LIMIT ?";
+        "CASE WHEN SUM(rate.rate) IS NULL THEN 0 ELSE SUM(rate.rate) END AS useful "
+            + "SELECT r.review_id, r.user_id, r.film_id,r.is_positive,r.content, "
+            + "FROM reviews AS r " + "LEFT JOIN (SELECT COUNT(user_id) AS rate, review_id "
+            + "           FROM review_likes " + "           WHERE is_useful = TRUE "
+            + "           GROUP BY review_id " + "           UNION ALL "
+            + "           SELECT -1*COUNT(user_id) as rate, review_id "
+            + "           FROM review_likes " + "           WHERE is_useful = FALSE "
+            + "           GROUP BY REVIEW_ID) AS rate ON r.review_id = rate.review_id "
+            + "WHERE r.film_id = ? " + "GROUP BY r.review_id " + "ORDER BY useful DESC "
+            + "LIMIT ?";
 
-    private static final String INSERT_REVIEW = "INSERT INTO reviews (user_id, film_id, is_positive, content)" +
-            " VALUES (?, ?, ?, ?)";
+    private static final String INSERT_REVIEW =
+        "INSERT INTO reviews (user_id, film_id, is_positive, content) VALUES (?, ?, ?, ?)";
 
-    private static final String UPDATE_REVIEW = "UPDATE reviews SET user_id = ?, film_id = ?, " +
-            "is_positive = ?, content = ? WHERE review_id = ?";
+    private static final String UPDATE_REVIEW = "is_positive = ?, content = ? WHERE review_id = ?"
+        + "UPDATE reviews SET user_id = ?, film_id = ?, ";
 
     private static final String DELETE_REVIEW = "DELETE FROM reviews WHERE review_id = ?";
     private static final String UPDATE_REVIEW_LIKE =
-            "MERGE INTO review_likes (review_id, user_id, is_useful) KEY (review_id, user_id) VALUES (?, ?, ?)";
+            "MERGE INTO review_likes (review_id, user_id, is_useful) KEY (review_id, user_id)"
+                + " VALUES (?, ?, ?)";
 
     private static final String DELETE_REVIEW_LIKE =
             "DELETE FROM review_likes WHERE REVIEW_ID = ? AND USER_ID = ?";
@@ -97,8 +87,8 @@ public class ReviewDbStorage implements ReviewStorage, ReviewReadModel, ReviewLi
 
             injectId(review, keyHolder.getKey().longValue());
         } else {
-            jdbcTemplate.update(UPDATE_REVIEW, review.getUserId(), review.getFilmId(), review.isPositive(),
-                    review.getContent(), review.getId());
+            jdbcTemplate.update(UPDATE_REVIEW, review.getUserId(), review.getFilmId(),
+                review.isPositive(), review.getContent(), review.getId());
         }
     }
 

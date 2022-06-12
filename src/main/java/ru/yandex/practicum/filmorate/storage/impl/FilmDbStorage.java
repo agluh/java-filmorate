@@ -1,19 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
-import java.lang.reflect.Field;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
-import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -27,6 +13,15 @@ import ru.yandex.practicum.filmorate.storage.FilmReadModel;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
+
+import java.lang.reflect.Field;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.*;
 
 /**
  * DB based implementation of film storage.
@@ -75,6 +70,18 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
         "DELETE FROM film_genre WHERE film_id = ?";
     public static final String INSERT_GENRE =
         "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
+
+    public static final String SELECT_RECOMMENDATIONS = "SELECT * FROM films " +
+            "WHERE film_id " +
+            "          IN (SELECT DISTINCT l.film_id FROM likes AS l " +
+            "                  WHERE l.user_id " +
+            "                      IN (SELECT l.user_id FROM likes AS l " +
+            "                          WHERE l.film_id " +
+            "                              IN (SELECT f.film_id FROM films AS f " +
+            "                                        RIGHT JOIN likes AS l ON f.film_id = l.film_id " +
+            "                                  WHERE l.user_id = ?)" +
+            "                              AND l.user_id <> ?)" +
+            "                    AND l.film_id NOT IN (SELECT l.film_id FROM likes AS l WHERE l.user_id = ?));";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -188,6 +195,11 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
     public Collection<Film> getFilmsBySearch(String query) {
         return jdbcTemplate.query(SELECT_FILMS_BY_NAME_SUBSTRING, this::mapRowToFilm, "%"
             + query.toLowerCase() + "%");
+    }
+
+    @Override
+    public Collection<Film> getRecommendationsForUser(Long userId) {
+        return jdbcTemplate.query(SELECT_RECOMMENDATIONS, this::mapRowToFilm,userId,userId,userId);
     }
 
     private void injectId(Film film, long id) {

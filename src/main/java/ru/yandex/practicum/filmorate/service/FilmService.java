@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
 import java.util.Collection;
+import java.util.List;
+
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,10 @@ public class FilmService {
 
         filmStorage.save(existedFilm);
         return existedFilm;
+    }
+
+    public Collection<Film> getRecommendations(Long userId) {
+        return filmReadModel.getRecommendationsForUser(userId);
     }
 
     public Collection<Film> getAllFilms() {

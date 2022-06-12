@@ -21,5 +21,9 @@ public interface FilmReadModel {
         throw new RuntimeException("not implemented");
     }
 
+
+    Collection<Film> getRecommendationsForUser(Long userId);
+
+
     Collection<Film> getFilmsBySearch(String query);
 }

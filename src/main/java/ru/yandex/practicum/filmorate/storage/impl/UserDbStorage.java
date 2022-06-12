@@ -8,11 +8,10 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
@@ -23,8 +22,7 @@ import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 /**
  * DB based implementation of user storage.
  */
-@Component
-@Primary
+@Repository
 public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadModel {
 
     public static final String SELECT_USER =
@@ -35,6 +33,9 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
         "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
     public static final String UPDATE_USER =
         "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?";
+
+    private static final String DELETE_USER =
+            "DELETE FROM users WHERE user_id = ?";
     public static final String SELECT_FRIENDSHIP =
         "SELECT inviter_id, acceptor_id, is_confirmed FROM friendship"
             + " WHERE (inviter_id = ? AND acceptor_id = ?)"
@@ -104,21 +105,26 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
     }
 
     @Override
+    public void delete(long id) {
+        jdbcTemplate.update(DELETE_USER, id);
+    }
+
+    @Override
     public void save(Friendship friendship) {
         jdbcTemplate.update(UPDATE_FRIENDSHIP, friendship.getInviterId(),
-            friendship.getAcceptorId(), friendship.isConfirmed());
+                friendship.getAcceptorId(), friendship.isConfirmed());
     }
 
     @Override
     public void delete(Friendship friendship) {
         jdbcTemplate.update(DELETE_FRIENDSHIP, friendship.getInviterId(),
-            friendship.getAcceptorId());
+                friendship.getAcceptorId());
     }
 
     @Override
     public Optional<Friendship> getFriendshipMetadataByUserIds(long userId, long otherId) {
         return jdbcTemplate.query(SELECT_FRIENDSHIP, this::mapRowToFriendship,
-            userId, otherId, userId, otherId).stream().findAny();
+                userId, otherId, userId, otherId).stream().findAny();
     }
 
     @Override
@@ -134,7 +140,7 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
     @Override
     public Collection<User> getCommonFriendsOfUsers(long userId, long otherId) {
         return jdbcTemplate.query(SELECT_COMMON_FRIENDS, this::mapRowToUser,
-            userId, userId, otherId, otherId);
+                userId, userId, otherId, otherId);
     }
 
     private void injectId(User user, long id) {
@@ -149,19 +155,19 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
 
     private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
         return new User(
-            rs.getLong("user_id"),
-            rs.getString("email"),
-            rs.getString("login"),
-            rs.getString("name"),
-            rs.getDate("birthday").toLocalDate()
+                rs.getLong("user_id"),
+                rs.getString("email"),
+                rs.getString("login"),
+                rs.getString("name"),
+                rs.getDate("birthday").toLocalDate()
         );
     }
 
     private Friendship mapRowToFriendship(ResultSet rs, int rowNum) throws SQLException {
         return new Friendship(
-            rs.getLong("inviter_id"),
-            rs.getLong("acceptor_id"),
-            rs.getBoolean("is_confirmed")
+                rs.getLong("inviter_id"),
+                rs.getLong("acceptor_id"),
+                rs.getBoolean("is_confirmed")
         );
     }
 }

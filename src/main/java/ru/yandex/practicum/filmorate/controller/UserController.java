@@ -4,6 +4,8 @@ import java.util.Collection;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validation.ValidationMarker;
@@ -91,5 +94,16 @@ public class UserController {
         @PathVariable("id") long userId,
         @PathVariable long otherId) {
         return userService.getCommonFriends(userId, otherId);
+    }
+
+    @GetMapping("/{id}/feed")
+    public Collection<Event> getEventsOfUser(@PathVariable("id") long userId) {
+        return userService.getEventsOfUser(userId);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable("id") long userId) {
+        userService.deleteUser(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }

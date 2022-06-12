@@ -1,5 +1,17 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
+import java.lang.reflect.Field;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,8 +40,7 @@ import java.util.*;
  * DB based implementation of film storage.
  */
 @Component
-@Primary
-public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel{
+public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
 
     public static final String SELECT_FILM =
         "SELECT film_id, name, description, release_date, duration, mpa"
@@ -41,15 +52,24 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel{
             + " f.duration, f.mpa"
             + " FROM films AS f"
             + " LEFT JOIN likes AS l on f.film_id = l.film_id"
+            + " LEFT JOIN film_genre AS fg on f.film_id = fg.film_id"
+            + " WHERE %s"
             + " GROUP BY f.film_id"
             + " ORDER BY COUNT(DISTINCT l.user_id) DESC"
             + " LIMIT ?";
+
+    public static final String SELECT_FILMS_BY_NAME_SUBSTRING =
+        "SELECT film_id, name, description, "
+            + "release_date, duration, mpa FROM films WHERE LOWER(name) LIKE ?";
+
     public static final String INSERT_FILM =
         "INSERT INTO films (name, description, release_date, duration, mpa) "
             + "VALUES (?, ?, ?, ?, ?)";
     public static final String UPDATE_FILM =
         "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa = ?"
-        + " WHERE film_id = ?";
+            + " WHERE film_id = ?";
+
+    private static final String DELETE_FILM = "DELETE FROM films WHERE film_id = ?";
     public static final String SELECT_LIKE =
         "SELECT user_id, film_id, created_at FROM likes WHERE user_id = ? AND film_id = ?";
     public static final String UPDATE_LIKE =
@@ -122,6 +142,11 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel{
     }
 
     @Override
+    public void delete(long id) {
+        jdbcTemplate.update(DELETE_FILM, id);
+    }
+
+    @Override
     public void save(Like like) {
         jdbcTemplate.update(UPDATE_LIKE, like.getUserid(), like.getFilmId(), like.getCreatedAt());
     }
@@ -143,8 +168,46 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel{
     }
 
     @Override
-    public Collection<Film> getMostPopularFilms(int maxCount) {
-        return jdbcTemplate.query(SELECT_POPULAR_FILMS, this::mapRowToFilm, maxCount);
+    public Collection<Film> getMostPopularFilms(int limit) {
+        return jdbcTemplate.query(String.format(SELECT_POPULAR_FILMS, "1 = 1"),
+            this::mapRowToFilm, limit);
+    }
+
+    @Override
+    public Collection<Film> getMostPopularFilms(OptionalLong genreId, OptionalInt year, int limit) {
+        if (genreId.isPresent() && year.isPresent()) {
+            String sql = String.format(SELECT_POPULAR_FILMS,
+                "fg.genre_id = ? AND YEAR (f.release_date) = ?");
+            return jdbcTemplate.query(sql, this::mapRowToFilm,
+                genreId.getAsLong(), year.getAsInt(), limit);
+        }
+
+        if (genreId.isPresent()) {
+            String sql = String.format(SELECT_POPULAR_FILMS,
+                "fg.genre_id = ?");
+            return jdbcTemplate.query(sql, this::mapRowToFilm,
+                genreId.getAsLong(), limit);
+        }
+
+        if (year.isPresent()) {
+            String sql = String.format(SELECT_POPULAR_FILMS,
+                "YEAR (f.release_date) = ?");
+            return jdbcTemplate.query(sql, this::mapRowToFilm,
+                year.getAsInt(), limit);
+        }
+
+        return getMostPopularFilms(limit);
+    }
+
+    /**
+     * Performs search by film name.
+     *
+     * @see <a href="https://stackoverflow.com/questions/55499110">related issue</a>
+     */
+    @Override
+    public Collection<Film> getFilmsBySearch(String query) {
+        return jdbcTemplate.query(SELECT_FILMS_BY_NAME_SUBSTRING, this::mapRowToFilm, "%"
+            + query.toLowerCase() + "%");
     }
 
     @Override

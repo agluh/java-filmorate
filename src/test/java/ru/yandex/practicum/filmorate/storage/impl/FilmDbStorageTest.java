@@ -7,6 +7,8 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +42,7 @@ class FilmDbStorageTest {
     void testGetAll() {
         Collection<Film> films = filmStorage.getAll();
 
-        assertThat(films).hasSize(2);
+        assertThat(films).hasSize(3);
     }
 
     @Test
@@ -48,16 +50,46 @@ class FilmDbStorageTest {
         Collection<Film> films = filmStorage.getMostPopularFilms(1);
 
         assertThat(films)
+                .hasSize(1)
+                .flatMap(Film::getId)
+            .isSubsetOf(2L);
+    }
+
+    @Test
+    void getFilmsBySearchFromDB() {
+        Collection<Film> films = filmStorage.getFilmsBySearch("man");
+        assertThat(films)
+                .hasSize(2);
+        films.forEach((c) -> System.out.println(c.getName()));
+    }
+
+    @Test
+    void testGetMostPopularFilmsWithGenreFilter() {
+        Collection<Film> films = filmStorage.getMostPopularFilms(OptionalLong.of(1L),
+            OptionalInt.empty(), 10);
+
+        assertThat(films)
             .hasSize(1)
             .flatMap(Film::getId)
-                .isSubsetOf(2L);
+            .isSubsetOf(2L);
+    }
+
+    @Test
+    void testGetMostPopularFilmsWithYearFilter() {
+        Collection<Film> films = filmStorage.getMostPopularFilms(OptionalLong.empty(),
+            OptionalInt.of(1999), 10);
+
+        assertThat(films)
+            .hasSize(1)
+            .flatMap(Film::getId)
+            .isSubsetOf(1L);
     }
 
     @Test
     void testSaveFilm() {
         Film film = new Film(null, "Name", "Description",
-            LocalDate.of(2022, 4, 22), 120, MpaRating.G,
-            new HashSet<>());
+                LocalDate.of(2022, 4, 22), 120, MpaRating.G,
+                new HashSet<>());
 
         filmStorage.save(film);
 
@@ -66,10 +98,10 @@ class FilmDbStorageTest {
         Optional<Film> filmOptional = filmStorage.getFilm(film.getId());
 
         assertThat(filmOptional)
-            .isPresent()
-            .hasValueSatisfying(f ->
-                assertThat(f).isEqualTo(film)
-            );
+                .isPresent()
+                .hasValueSatisfying(f ->
+                        assertThat(f).isEqualTo(film)
+                );
     }
 
     @Test
@@ -82,10 +114,10 @@ class FilmDbStorageTest {
         Optional<Like> likeOptional = filmStorage.getLikeMetadataByUserAndFilm(3, 2);
 
         assertThat(likeOptional)
-            .isPresent()
-            .hasValueSatisfying(l ->
-                assertThat(l).isEqualTo(like)
-            );
+                .isPresent()
+                .hasValueSatisfying(l ->
+                        assertThat(l).isEqualTo(like)
+                );
     }
 
     @Test

@@ -264,6 +264,19 @@ class FilmControllerTest {
                 is("must be greater than 0")));
     }
 
+    @Test
+    void givenListOfPopularFilms_shouldReturnCode200AndCorrectData() throws Exception {
+        when(service.getMostPopularFilms(null, null, 1)).thenReturn(List.of(createFilm()));
+
+        mockMvc.perform(get("/films/popular?count=1"))
+            .andExpect(status().isOk())
+            .andDo(print())
+            .andExpect(jsonPath("$[0].description", is(DESCRIPTION)))
+            .andExpect(jsonPath("$[0].duration", is((int)DURATION)))
+            .andExpect(jsonPath("$[0].name", is(NAME)))
+            .andExpect(jsonPath("$[0].releaseDate", is(RELEASE_DATE.format(RELEASE_DATE_FORMATTER))));
+    }
+
 
     private Film createFilm() {
         return new Film(1L, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MpaRating.G,

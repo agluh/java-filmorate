@@ -4,7 +4,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.filmorate.events.UserLikedFilm;
+import ru.yandex.practicum.filmorate.events.UserRevokedLikeOfFilm;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.service.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.service.exception.UserNotFoundException;
@@ -22,12 +26,15 @@ public class LikeService {
     private final FilmStorage filmStorage;
     private final LikeStorage likeStorage;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     /**
      * Marks a film as liked by user.
      *
      * @throws UserNotFoundException in case user not found by its identity.
      * @throws FilmNotFoundException in case film not found by its identity.
      */
+    @Transactional
     public void doLike(long userId, long filmId) {
         ensureUserExists(userId);
         ensureFilmExists(filmId);
@@ -39,6 +46,8 @@ public class LikeService {
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
         Like like = new Like(userId, filmId, now);
         likeStorage.save(like);
+
+        eventPublisher.publishEvent(new UserLikedFilm(ZonedDateTime.now(), userId, filmId));
     }
 
     /**
@@ -47,13 +56,18 @@ public class LikeService {
      * @throws UserNotFoundException in case user not found by its identity.
      * @throws FilmNotFoundException in case film not found by its identity.
      */
+    @Transactional
     public void doUnlike(long userId, long filmId) {
         ensureUserExists(userId);
         ensureFilmExists(filmId);
 
         Optional<Like> like = likeStorage.getLikeMetadataByUserAndFilm(userId, filmId);
 
-        like.ifPresent(likeStorage::delete);
+        like.ifPresent(l -> {
+            likeStorage.delete(l);
+            eventPublisher.publishEvent(new UserRevokedLikeOfFilm(ZonedDateTime.now(),
+                userId, filmId));
+        });
     }
 
     private void ensureUserExists(long userId) {

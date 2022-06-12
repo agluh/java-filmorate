@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.service;
 import java.util.Collection;
 import java.util.List;
 
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -56,12 +58,35 @@ public class FilmService {
         return filmReadModel.getAll();
     }
 
-    public Collection<Film> getMostPopularFilms(int maxCount) {
-        return filmReadModel.getMostPopularFilms(maxCount);
+    public Collection<Film> getMostPopularFilms(Long genreId, Integer year, int limit) {
+        return filmReadModel.getMostPopularFilms(
+            genreId != null ? OptionalLong.of(genreId) : OptionalLong.empty(),
+            year != null ? OptionalInt.of(year) : OptionalInt.empty(),
+            limit
+        );
     }
 
     public Film getFilm(long filmId) {
         return filmStorage.getFilm(filmId).orElseThrow(() ->
             new FilmNotFoundException(filmId));
+    }
+
+    public Collection<Film> getFilmsBySearch (String query, String by) {
+       if (query != null && by.equals("title")) {
+           return filmReadModel.getFilmsBySearch(query);
+       } else {
+           return filmReadModel.getMostPopularFilms(Integer.MAX_VALUE);
+       }
+    }
+
+
+    private void ensureFilmExists(long filmId) {
+        filmStorage.getFilm(filmId).orElseThrow(() ->
+                new FilmNotFoundException(filmId));
+    }
+
+    public void deleteFilm(long filmId) {
+        ensureFilmExists(filmId);
+        filmStorage.delete(filmId);
     }
 }

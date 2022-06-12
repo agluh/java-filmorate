@@ -49,25 +49,25 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
         "SELECT user_id, email, login, name, birthday"
         + " FROM users AS u"
         + " WHERE u.user_id IN ("
-        + "   (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?)"
+        + "   SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?"
         + "   UNION"
-        + "   (SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = ?"
-        + "      AND is_confirmed IS TRUE)"
+        + "   SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = ?"
+        + "      AND is_confirmed IS TRUE"
         + " )";
     public static final String SELECT_COMMON_FRIENDS =
         "SELECT user_id, email, login, name, birthday"
             + " FROM users AS u"
             + " WHERE u.user_id IN ("
-            + "   (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?)"
+            + "   SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?"
             + "   UNION"
-            + "   (SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = ?"
-            + "      AND is_confirmed IS TRUE)"
+            + "   SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = ?"
+            + "      AND is_confirmed IS TRUE"
             + " )"
             + "AND u.user_id IN ("
-            + "   (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?)"
+            + "   SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?"
             + "   UNION"
-            + "   (SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = ?"
-            + "      AND is_confirmed IS TRUE)"
+            + "   SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = ?"
+            + "      AND is_confirmed IS TRUE"
             + " )";
 
     private final JdbcTemplate jdbcTemplate;
@@ -105,20 +105,20 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
     }
 
     @Override
-    public void delete(long id) {
-        jdbcTemplate.update(DELETE_USER, id);
-    }
-
-    @Override
     public void save(Friendship friendship) {
         jdbcTemplate.update(UPDATE_FRIENDSHIP, friendship.getInviterId(),
-                friendship.getAcceptorId(), friendship.isConfirmed());
+            friendship.getAcceptorId(), friendship.isConfirmed());
     }
 
     @Override
     public void delete(Friendship friendship) {
         jdbcTemplate.update(DELETE_FRIENDSHIP, friendship.getInviterId(),
-                friendship.getAcceptorId());
+            friendship.getAcceptorId());
+    }
+
+    @Override
+    public void delete(long userId) {
+        jdbcTemplate.update(DELETE_USER, userId);
     }
 
     @Override

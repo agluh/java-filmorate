@@ -23,34 +23,45 @@ public class ReviewDbStorage implements ReviewStorage, ReviewReadModel, ReviewLi
     private final JdbcTemplate jdbcTemplate;
 
     private static final String SELECT_REVIEW =
-        "SELECT r.review_id, r.user_id, r.film_id,r.is_positive,r.content, "
-            + "CASE WHEN SUM(rate.rate) IS NULL THEN 0 ELSE SUM(rate.rate) END AS useful "
-            + "FROM reviews AS r " + "LEFT JOIN (SELECT COUNT(user_id) AS rate, review_id "
-            + "           FROM review_likes " + "           WHERE is_useful = TRUE "
-            + "           GROUP BY review_id " + "           UNION ALL "
-            + "           SELECT -1*COUNT(user_id) AS rate, review_id "
-            + "           FROM review_likes "
-            + "           GROUP BY review_id) AS rate ON r.review_id = rate.review_id "
-            + "           WHERE is_useful = FALSE " + "WHERE r.review_id = ? "
-            + "GROUP BY r.review_id";
+        "SELECT r.review_id, r.user_id, r.film_id,r.is_positive,r.content,"
+            + " CASE WHEN SUM(rate.rate) IS NULL THEN 0 ELSE SUM(rate.rate) END AS useful"
+            + " FROM reviews AS r"
+            + " LEFT JOIN (SELECT COUNT(user_id) AS rate, review_id"
+            + "           FROM review_likes"
+            + "           WHERE is_useful = TRUE"
+            + "           GROUP BY review_id"
+            + "           UNION ALL"
+            + "           SELECT -1*COUNT(user_id) AS rate, review_id"
+            + "           FROM review_likes"
+            + "           WHERE is_useful = FALSE"
+            + "           GROUP BY review_id) AS rate ON r.review_id = rate.review_id"
+            + " WHERE r.review_id = ?"
+            + " GROUP BY r.review_id";
 
     private static final String SELECT_REVIEWS_BY_FILM =
-        "CASE WHEN SUM(rate.rate) IS NULL THEN 0 ELSE SUM(rate.rate) END AS useful "
-            + "SELECT r.review_id, r.user_id, r.film_id,r.is_positive,r.content, "
-            + "FROM reviews AS r " + "LEFT JOIN (SELECT COUNT(user_id) AS rate, review_id "
-            + "           FROM review_likes " + "           WHERE is_useful = TRUE "
-            + "           GROUP BY review_id " + "           UNION ALL "
-            + "           SELECT -1*COUNT(user_id) as rate, review_id "
-            + "           FROM review_likes " + "           WHERE is_useful = FALSE "
-            + "           GROUP BY REVIEW_ID) AS rate ON r.review_id = rate.review_id "
-            + "WHERE r.film_id = ? " + "GROUP BY r.review_id " + "ORDER BY useful DESC "
-            + "LIMIT ?";
+        "SELECT r.review_id, r.user_id, r.film_id,r.is_positive,r.content,"
+            + " CASE WHEN SUM(rate.rate) IS NULL THEN 0 ELSE SUM(rate.rate) END AS useful"
+            + " FROM reviews AS r"
+            + " LEFT JOIN (SELECT COUNT(user_id) AS rate, review_id"
+            + "           FROM review_likes"
+            + "           WHERE is_useful = TRUE"
+            + "           GROUP BY review_id"
+            + "           UNION ALL"
+            + "           SELECT -1*COUNT(user_id) as rate, review_id"
+            + "           FROM review_likes"
+            + "           WHERE is_useful = FALSE"
+            + "           GROUP BY REVIEW_ID) AS rate ON r.review_id = rate.review_id"
+            + " WHERE r.film_id = ?"
+            + " GROUP BY r.review_id"
+            + " ORDER BY useful DESC"
+            + " LIMIT ?";
 
     private static final String INSERT_REVIEW =
         "INSERT INTO reviews (user_id, film_id, is_positive, content) VALUES (?, ?, ?, ?)";
 
-    private static final String UPDATE_REVIEW = "is_positive = ?, content = ? WHERE review_id = ?"
-        + "UPDATE reviews SET user_id = ?, film_id = ?, ";
+    private static final String UPDATE_REVIEW =
+        "UPDATE reviews SET user_id = ?, film_id = ?,"
+            + " is_positive = ?, content = ? WHERE review_id = ?";
 
     private static final String DELETE_REVIEW = "DELETE FROM reviews WHERE review_id = ?";
     private static final String UPDATE_REVIEW_LIKE =
@@ -93,6 +104,17 @@ public class ReviewDbStorage implements ReviewStorage, ReviewReadModel, ReviewLi
     }
 
     @Override
+    public void save(ReviewLike reviewLike) {
+        jdbcTemplate.update(UPDATE_REVIEW_LIKE, reviewLike.getReviewId(), reviewLike.getUserId(),
+            reviewLike.isUseful());
+    }
+
+    @Override
+    public void delete(ReviewLike reviewLike) {
+        jdbcTemplate.update(DELETE_REVIEW_LIKE, reviewLike.getReviewId(), reviewLike.getUserId());
+    }
+
+    @Override
     public void delete(long reviewId) {
         jdbcTemplate.update(DELETE_REVIEW, reviewId);
     }
@@ -100,17 +122,6 @@ public class ReviewDbStorage implements ReviewStorage, ReviewReadModel, ReviewLi
     @Override
     public Collection<Review> getReviewsByFilmId(long filmId, int count) {
         return jdbcTemplate.query(SELECT_REVIEWS_BY_FILM, this::mapRowToReview, filmId, count);
-    }
-
-    @Override
-    public void save(ReviewLike reviewLike) {
-        jdbcTemplate.update(UPDATE_REVIEW_LIKE, reviewLike.getReviewId(), reviewLike.getUserId(),
-                reviewLike.isUseful());
-    }
-
-    @Override
-    public void delete(ReviewLike reviewLike) {
-        jdbcTemplate.update(DELETE_REVIEW_LIKE, reviewLike.getReviewId(), reviewLike.getUserId());
     }
 
     private void injectId(Review review, long id) {

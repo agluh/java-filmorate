@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import java.util.Collection;
-import java.util.List;
-
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,14 +69,13 @@ public class FilmService {
             new FilmNotFoundException(filmId));
     }
 
-    public Collection<Film> getFilmsBySearch (String query, String by) {
-       if (query != null && by.equals("title")) {
-           return filmReadModel.getFilmsBySearch(query);
-       } else {
-           return filmReadModel.getMostPopularFilms(Integer.MAX_VALUE);
-       }
+    public Collection<Film> getFilmsBySearch(String query, String by) {
+        if (query != null && by.equals("title")) {
+            return filmReadModel.getFilmsBySearch(query);
+        } else {
+            return filmReadModel.getMostPopularFilms(Integer.MAX_VALUE);
+        }
     }
-
 
     private void ensureFilmExists(long filmId) {
         filmStorage.getFilm(filmId).orElseThrow(() ->

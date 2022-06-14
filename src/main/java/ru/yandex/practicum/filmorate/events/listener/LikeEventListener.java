@@ -15,9 +15,9 @@ import ru.yandex.practicum.filmorate.storage.EventStorage;
 @AllArgsConstructor
 public class LikeEventListener {
 
-    private static final String LIKE = "LIKE";
-    private static final String ADD = "ADD";
-    private static final String REMOVE = "REMOVE";
+    private static final String EVENT_SUBJECT = "LIKE";
+    private static final String EVENT_OPERATION_ADD = "ADD";
+    private static final String EVENT_OPERATION_REMOVE = "REMOVE";
 
     private final EventStorage eventStorage;
 
@@ -28,8 +28,8 @@ public class LikeEventListener {
             event.getUserId(),
             event.getFilmId(),
             event.getOccurredOn(),
-            LIKE,
-            ADD
+            EVENT_SUBJECT,
+            EVENT_OPERATION_ADD
         ));
     }
 
@@ -40,8 +40,8 @@ public class LikeEventListener {
             event.getUserId(),
             event.getFilmId(),
             event.getOccurredOn(),
-            LIKE,
-            REMOVE
+            EVENT_SUBJECT,
+            EVENT_OPERATION_REMOVE
         ));
     }
 }

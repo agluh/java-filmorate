@@ -16,10 +16,10 @@ import ru.yandex.practicum.filmorate.storage.EventStorage;
 @AllArgsConstructor
 public class ReviewEventListener {
 
-    private static final String REVIEW = "REVIEW";
-    private static final String ADD = "ADD";
-    private static final String UPDATE = "UPDATE";
-    private static final String REMOVE = "REMOVE";
+    private static final String EVENT_SUBJECT_REVIEW = "REVIEW";
+    private static final String EVENT_OPERATION_ADD = "ADD";
+    private static final String EVENT_OPERATION_UPDATE = "UPDATE";
+    private static final String EVENT_OPERATION_REMOVE = "REMOVE";
 
     private final EventStorage eventStorage;
 
@@ -30,8 +30,8 @@ public class ReviewEventListener {
             event.getUserId(),
             event.getReviewId(),
             event.getOccurredOn(),
-            REVIEW,
-            ADD
+            EVENT_SUBJECT_REVIEW,
+            EVENT_OPERATION_ADD
         ));
     }
 
@@ -42,8 +42,8 @@ public class ReviewEventListener {
             event.getUserId(),
             event.getReviewId(),
             event.getOccurredOn(),
-            REVIEW,
-            UPDATE
+            EVENT_SUBJECT_REVIEW,
+            EVENT_OPERATION_UPDATE
         ));
     }
 
@@ -54,8 +54,8 @@ public class ReviewEventListener {
             event.getUserId(),
             event.getReviewId(),
             event.getOccurredOn(),
-            REVIEW,
-            REMOVE
+            EVENT_SUBJECT_REVIEW,
+            EVENT_OPERATION_REMOVE
         ));
     }
 }

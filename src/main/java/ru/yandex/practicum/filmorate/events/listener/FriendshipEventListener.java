@@ -15,6 +15,10 @@ import ru.yandex.practicum.filmorate.storage.EventStorage;
 @AllArgsConstructor
 public class FriendshipEventListener {
 
+    private static final String FRIEND = "FRIEND";
+    private static final String ADD = "ADD";
+    private static final String REMOVE = "REMOVE";
+
     private final EventStorage eventStorage;
 
     @EventListener(UserAddedFriend.class)
@@ -24,8 +28,8 @@ public class FriendshipEventListener {
             event.getUserId(),
             event.getFriendId(),
             event.getOccurredOn(),
-            "FRIEND",
-            "ADD"
+            FRIEND,
+            ADD
         ));
     }
 
@@ -36,8 +40,8 @@ public class FriendshipEventListener {
             event.getUserId(),
             event.getFriendId(),
             event.getOccurredOn(),
-            "FRIEND",
-            "REMOVE"
+            FRIEND,
+            REMOVE
         ));
     }
 }

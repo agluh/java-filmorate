@@ -15,6 +15,9 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
  */
 @Service
 public class FilmService {
+
+    public static final String SEARCH_BY_TITLE = "TITLE";
+
     private final FilmStorage filmStorage;
     private final FilmReadModel filmReadModel;
 
@@ -70,7 +73,7 @@ public class FilmService {
     }
 
     public Collection<Film> getFilmsBySearch(String query, String by) {
-        if (query != null && by.equals("title")) {
+        if (query != null && by.equalsIgnoreCase(SEARCH_BY_TITLE)) {
             return filmReadModel.getFilmsBySearch(query);
         } else {
             return filmReadModel.getMostPopularFilms(Integer.MAX_VALUE);

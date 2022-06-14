@@ -34,12 +34,12 @@ import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 @Component
 public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
 
-    public static final String SELECT_FILM =
+    private static final String SELECT_FILM =
         "SELECT film_id, name, description, release_date, duration, mpa"
             + " FROM films WHERE film_id = ?";
-    public static final String SELECT_FILMS =
+    private static final String SELECT_FILMS =
         "SELECT film_id, name, description, release_date, duration, mpa FROM films";
-    public static final String SELECT_POPULAR_FILMS =
+    private static final String SELECT_POPULAR_FILMS =
         "SELECT f.film_id, f.name, f.description, f.release_date,"
             + " f.duration, f.mpa"
             + " FROM films AS f"
@@ -50,17 +50,15 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
             + " ORDER BY COUNT(DISTINCT l.user_id) DESC"
             + " LIMIT ?";
 
-    public static final String SELECT_FILMS_BY_NAME_SUBSTRING =
+    private static final String SELECT_FILMS_BY_NAME_SUBSTRING =
         "SELECT film_id, name, description, "
             + "release_date, duration, mpa FROM films WHERE LOWER(name) LIKE ?";
-
-    public static final String INSERT_FILM =
+    private static final String INSERT_FILM =
         "INSERT INTO films (name, description, release_date, duration, mpa) "
             + "VALUES (?, ?, ?, ?, ?)";
-    public static final String UPDATE_FILM =
+    private static final String UPDATE_FILM =
         "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa = ?"
             + " WHERE film_id = ?";
-
     private static final String DELETE_FILM = "DELETE FROM films WHERE film_id = ?";
     public static final String SELECT_LIKE =
         "SELECT user_id, film_id, created_at FROM likes WHERE user_id = ? AND film_id = ?";

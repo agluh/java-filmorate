@@ -25,27 +25,26 @@ import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 @Repository
 public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadModel {
 
-    public static final String SELECT_USER =
+    private static final String SELECT_USER =
         "SELECT user_id, email, login, name, birthday FROM users WHERE user_id = ?";
-    public static final String SELECT_USERS =
+    private static final String SELECT_USERS =
         "SELECT user_id, email, login, name, birthday FROM users";
-    public static final String INSERT_USER =
+    private static final String INSERT_USER =
         "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
-    public static final String UPDATE_USER =
+    private static final String UPDATE_USER =
         "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?";
-
     private static final String DELETE_USER =
             "DELETE FROM users WHERE user_id = ?";
-    public static final String SELECT_FRIENDSHIP =
+    private static final String SELECT_FRIENDSHIP =
         "SELECT inviter_id, acceptor_id, is_confirmed FROM friendship"
             + " WHERE (inviter_id = ? AND acceptor_id = ?)"
             + " OR (acceptor_id = ? AND inviter_id = ?)";
-    public static final String UPDATE_FRIENDSHIP =
+    private static final String UPDATE_FRIENDSHIP =
         "MERGE INTO friendship (inviter_id, acceptor_id, is_confirmed)"
             + " KEY (inviter_id, acceptor_id) VALUES (?, ?, ?)";
-    public static final String DELETE_FRIENDSHIP =
+    private static final String DELETE_FRIENDSHIP =
         "DELETE FROM friendship WHERE inviter_id = ? AND acceptor_id = ?";
-    public static final String SELECT_FRIENDS =
+    private static final String SELECT_FRIENDS =
         "SELECT user_id, email, login, name, birthday"
         + " FROM users AS u"
         + " WHERE u.user_id IN ("
@@ -54,7 +53,7 @@ public class UserDbStorage implements UserStorage, FriendshipStorage, UserReadMo
         + "   SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = ?"
         + "      AND is_confirmed IS TRUE"
         + " )";
-    public static final String SELECT_COMMON_FRIENDS =
+    private static final String SELECT_COMMON_FRIENDS =
         "SELECT user_id, email, login, name, birthday"
             + " FROM users AS u"
             + " WHERE u.user_id IN ("

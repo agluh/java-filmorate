@@ -23,22 +23,22 @@ import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 @Component
 public class EventDbStorage implements EventStorage, EventReadModel {
 
-    public static final String INSERT_EVENT =
+    private static final String INSERT_EVENT =
         "INSERT INTO events (user_id, entity_id, occurred_on, event_type, operation)"
             + " VALUES(?, ?, ?, ?, ?)";
-    public static final String SELECT_EVENT =
+    private static final String SELECT_EVENT =
         "SELECT event_id, user_id, entity_id, occurred_on, event_type, operation"
             + " FROM events WHERE event_id = ?";
-    public static final String SELECT_EVENTS =
+    private static final String SELECT_EVENTS =
         "SELECT event_id, user_id, entity_id, occurred_on, event_type, operation"
             + " FROM events WHERE user_id IN ("
             + "     SELECT user_id"
             + "     FROM users AS u"
             + "     WHERE u.user_id IN ("
-            + "         (SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?)"
+            + "         SELECT acceptor_id AS user_id FROM friendship WHERE inviter_id = ?"
             + "         UNION"
-            + "         (SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = ?"
-            + "             AND is_confirmed IS TRUE)"
+            + "         SELECT inviter_id AS user_id FROM friendship WHERE acceptor_id = ?"
+            + "             AND is_confirmed IS TRUE"
             + "     )"
             + " )"
             + " ORDER BY occurred_on DESC";

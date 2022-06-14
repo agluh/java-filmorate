@@ -20,7 +20,6 @@ import ru.yandex.practicum.filmorate.storage.exceptions.DaoException;
 
 @Repository
 public class ReviewDbStorage implements ReviewStorage, ReviewReadModel, ReviewLikeStorage {
-    private final JdbcTemplate jdbcTemplate;
 
     private static final String SELECT_REVIEW =
         "SELECT r.review_id, r.user_id, r.film_id,r.is_positive,r.content,"
@@ -37,7 +36,6 @@ public class ReviewDbStorage implements ReviewStorage, ReviewReadModel, ReviewLi
             + "           GROUP BY review_id) AS rate ON r.review_id = rate.review_id"
             + " WHERE r.review_id = ?"
             + " GROUP BY r.review_id";
-
     private static final String SELECT_REVIEWS_BY_FILM =
         "SELECT r.review_id, r.user_id, r.film_id,r.is_positive,r.content,"
             + " CASE WHEN SUM(rate.rate) IS NULL THEN 0 ELSE SUM(rate.rate) END AS useful"
@@ -55,21 +53,19 @@ public class ReviewDbStorage implements ReviewStorage, ReviewReadModel, ReviewLi
             + " GROUP BY r.review_id"
             + " ORDER BY useful DESC"
             + " LIMIT ?";
-
     private static final String INSERT_REVIEW =
         "INSERT INTO reviews (user_id, film_id, is_positive, content) VALUES (?, ?, ?, ?)";
-
     private static final String UPDATE_REVIEW =
         "UPDATE reviews SET user_id = ?, film_id = ?,"
             + " is_positive = ?, content = ? WHERE review_id = ?";
-
     private static final String DELETE_REVIEW = "DELETE FROM reviews WHERE review_id = ?";
     private static final String UPDATE_REVIEW_LIKE =
             "MERGE INTO review_likes (review_id, user_id, is_useful) KEY (review_id, user_id)"
                 + " VALUES (?, ?, ?)";
-
     private static final String DELETE_REVIEW_LIKE =
             "DELETE FROM review_likes WHERE REVIEW_ID = ? AND USER_ID = ?";
+
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public ReviewDbStorage(JdbcTemplate jdbcTemplate) {

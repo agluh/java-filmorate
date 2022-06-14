@@ -17,9 +17,9 @@ import ru.yandex.practicum.filmorate.storage.GenreStorage;
 @Component
 public class GenreDbStorage implements GenreStorage, GenreReadModel {
 
-    public static final String SELECT_GENRE =
+    private static final String SELECT_GENRE =
         "SELECT genre_id, name FROM genres WHERE genre_id = ?";
-    public static final String SELECT_GENRES =
+    private static final String SELECT_GENRES =
         "SELECT genre_id, name FROM genres";
 
     private final JdbcTemplate jdbcTemplate;

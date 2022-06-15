@@ -4,13 +4,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Model of MPA rating.
+ */
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum MpaRating {
-    G("G - у фильма нет возрастных ограничений"),
-    PG("PG - детям рекомендуется смотреть фильм с родителями"),
-    PG_13("PG-13 - детям до 13 лет просмотр не желателен"),
-    R("R - лицам до 17 лет просматривать фильм можно только в присутствии взрослого"),
-    NC_17("NC-17 - лицам до 18 лет просмотр запрещён");
+    G("G"),
+    PG("PG"),
+    PG_13("PG-13"),
+    R("R"),
+    NC_17("NC-17");
 
     private final String name;
 

@@ -1,12 +1,19 @@
 package ru.yandex.practicum.filmorate.service;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.filmorate.events.UserAddedFriend;
+import ru.yandex.practicum.filmorate.events.UserRemovedFriend;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.storage.EventReadModel;
 import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.UserReadModel;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -15,23 +22,13 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
  * Provides service layer for users management.
  */
 @Service
+@AllArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
-
     private final FriendshipStorage friendshipStorage;
-
     private final UserReadModel userReadModel;
-
-    @Autowired
-    public UserService(
-        UserStorage userStorage,
-        FriendshipStorage friendshipStorage,
-        UserReadModel userReadModel
-    ) {
-        this.userStorage = userStorage;
-        this.friendshipStorage = friendshipStorage;
-        this.userReadModel = userReadModel;
-    }
+    private final EventReadModel eventReadModel;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * Creates a new user.
@@ -76,6 +73,7 @@ public class UserService {
      *
      * @throws UserNotFoundException in case user not found by its identity.
      */
+    @Transactional
     public void makeFriends(long inviterId, long acceptorId) {
         ensureUserExists(inviterId);
         ensureUserExists(acceptorId);
@@ -91,11 +89,15 @@ public class UserService {
 
             existedFriendship.setConfirmed(true);
             friendshipStorage.save(existedFriendship);
+            eventPublisher.publishEvent(new UserAddedFriend(ZonedDateTime.now(),
+                acceptorId, inviterId));
             return;
         }
 
         Friendship friendship = new Friendship(inviterId, acceptorId, false);
         friendshipStorage.save(friendship);
+        eventPublisher.publishEvent(new UserAddedFriend(ZonedDateTime.now(),
+            inviterId, acceptorId));
     }
 
     /**
@@ -103,6 +105,7 @@ public class UserService {
      *
      * @throws UserNotFoundException in case user not found by its identity.
      */
+    @Transactional
     public void unfriendUsers(long userId, long otherId) {
         ensureUserExists(userId);
         ensureUserExists(otherId);
@@ -110,7 +113,11 @@ public class UserService {
         Optional<Friendship> friendship =
             friendshipStorage.getFriendshipMetadataByUserIds(userId, otherId);
 
-        friendship.ifPresent(friendshipStorage::delete);
+        friendship.ifPresent(f -> {
+            friendshipStorage.delete(f);
+            eventPublisher.publishEvent(new UserRemovedFriend(ZonedDateTime.now(),
+                userId, otherId));
+        });
     }
 
     /**
@@ -136,7 +143,22 @@ public class UserService {
         return userReadModel.getCommonFriendsOfUsers(userId, otherId);
     }
 
+    /**
+     * Returns list of last events user related to.
+     *
+     * @throws UserNotFoundException in case user not found by its identity.
+     */
+    public Collection<Event> getEventsOfUser(long userId) {
+        ensureUserExists(userId);
+        return eventReadModel.getEventsListForUser(userId);
+    }
+
     private void ensureUserExists(long userId) {
         userStorage.getUser(userId).orElseThrow(() -> new UserNotFoundException(userId));
+    }
+
+    public void deleteUser(long userId) {
+        ensureUserExists(userId);
+        userStorage.delete(userId);
     }
 }

@@ -11,4 +11,6 @@ public interface UserStorage {
     Optional<User> getUser(long id);
 
     void save(User user);
+
+    void delete(long id);
 }

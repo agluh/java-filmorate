@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -12,7 +13,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.exception.UserNotFoundException;
 
 @WebMvcTest(UserController.class)
 class UserControllerTest {
@@ -245,6 +249,24 @@ class UserControllerTest {
                 is("birthday")))
             .andExpect(jsonPath("$.subErrors.[0].message",
                 is("must be a date in the past or in the present")));
+    }
+
+    @Test
+    void getEventsOfNonExistedUser_shouldReturnCode404() throws Exception {
+        when(service.getEventsOfUser(-1)).thenThrow(UserNotFoundException.class);
+
+        mockMvc.perform(get("/users/-1/feed"))
+            .andExpect(status().isNotFound())
+            .andDo(print());
+    }
+
+    @Test
+    void getEventsOfExistedUser_shouldReturnCode200() throws Exception {
+        when(service.getEventsOfUser(1)).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/users/1/feed"))
+            .andExpect(status().isOk())
+            .andDo(print());
     }
 
     private User createUser() {

@@ -86,4 +86,8 @@ public class FilmService {
         ensureFilmExists(filmId);
         filmStorage.delete(filmId);
     }
+
+    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+        return filmReadModel.getCommonFilms(userId, friendId);
+    }
 }

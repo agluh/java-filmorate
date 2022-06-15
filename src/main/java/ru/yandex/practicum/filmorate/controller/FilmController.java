@@ -112,4 +112,10 @@ public class FilmController {
         filmService.deleteFilm(filmId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
+
+    @GetMapping("/common")
+    public Collection<Film> getCommonFilms(
+            @RequestParam(value = "userId") Long userId, @RequestParam(value = "friendId") Long friendId) {
+        return filmService.getCommonFilms(userId, friendId);
+    }
 }

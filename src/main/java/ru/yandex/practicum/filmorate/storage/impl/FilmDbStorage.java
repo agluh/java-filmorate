@@ -93,6 +93,18 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
             + "     )"
             + " )";
 
+    public static final String SELECT_COMMON_FILMS =
+            "SELECT f.film_id, name, description, release_date, duration, mpa FROM films AS f"
+            +        " LEFT JOIN likes AS l ON f.film_id = l.film_id"
+            +        " WHERE f.film_id IN ("
+            +           " SELECT f.film_id from films AS f"
+            +           " LEFT JOIN likes AS l ON f.film_id = l.film_id"
+            +           " WHERE user_id = ?"
+            +        ")"
+            +        " AND user_id = ?"
+            + " GROUP BY f.film_id"
+            + " ORDER BY COUNT(DISTINCT user_id) DESC";
+
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -211,6 +223,10 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
     public Collection<Film> getRecommendationsForUser(Long userId) {
         return jdbcTemplate.query(SELECT_RECOMMENDATIONS, this::mapRowToFilm, userId, userId,
             userId);
+    }
+
+    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+        return jdbcTemplate.query(SELECT_COMMON_FILMS, this::mapRowToFilm, userId, friendId);
     }
 
     private void injectId(Film film, long id) {

@@ -96,7 +96,7 @@ public class FilmDbStorage implements FilmStorage, LikeStorage, FilmReadModel {
             + " )";
 
     public static final String SELECT_COMMON_FILMS =
-            "SELECT (f.film_id, name, description, release_date, duration, mpa) FROM films AS f"
+            "SELECT f.film_id, name, description, release_date, duration, mpa FROM films AS f"
             +        " LEFT JOIN likes AS l ON f.film_id = l.film_id"
             +        " WHERE f.film_id IN ("
             +           " SELECT f.film_id from films AS f"

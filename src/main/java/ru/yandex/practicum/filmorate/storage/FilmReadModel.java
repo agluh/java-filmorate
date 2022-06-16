@@ -26,4 +26,6 @@ public interface FilmReadModel {
 
 
     Collection<Film> getFilmsBySearch(String query);
+
+    Collection<Film> getCommonFilms(Long userId, Long friendId);
 }
